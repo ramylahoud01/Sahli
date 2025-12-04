@@ -16,6 +16,7 @@ import {
   ListItemButton,
   ListItemText,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
@@ -63,6 +64,19 @@ const LEBANON_DISTRICTS = [
 ].sort();
 
 const TOWNS_BY_DISTRICT = {
+  Beirut: [
+    "Achrafieh",
+    "Hamra",
+    "Verdun",
+    "Mar Mikhael",
+    "Badaro",
+    "Gemmayzeh",
+    "Ras Beirut",
+    "Corniche",
+    "Ain El Mreisseh",
+    "Other in Beirut",
+  ],
+
   Metn: [
     "Jdeideh",
     "Zalka",
@@ -79,21 +93,166 @@ const TOWNS_BY_DISTRICT = {
     "Beit Mery",
     "Broummana",
     "Baabdat",
+    "Cornet Chahwan",
+    "Rabieh",
     "Other in Metn",
   ],
-  Beirut: [
-    "Achrafieh",
-    "Hamra",
-    "Verdun",
-    "Mar Mikhael",
-    "Badaro",
-    "Gemmayzeh",
-    "Ras Beirut",
-    "Other in Beirut",
+
+  Baabda: [
+    "Hazmieh",
+    "Hadath",
+    "Furn El Chebbak",
+    "Baabda",
+    "Louaizeh",
+    "Araya",
+    "Jamhour",
+    "Qornayel",
+    "Other in Baabda",
   ],
-  Baabda: ["Hazmieh", "Hadath", "Furn El Chebbak", "Baabda", "Other in Baabda"],
-  // Add other districts as needed
+
+  Aley: [
+    "Aley",
+    "Bhamdoun",
+    "Ain Dara",
+    "Ain El Qabou",
+    "Souk El Gharb",
+    "Bsous",
+    "Aramoun",
+    "Other in Aley",
+  ],
+
+  Chouf: [
+    "Beiteddine",
+    "Deir El Qamar",
+    "Barouk",
+    "Maaser El Chouf",
+    "Baakline",
+    "Kfarhim",
+    "Other in Chouf",
+  ],
+
+  Jbeil: [
+    "Jbeil (Byblos)",
+    "Amchit",
+    "Hboub",
+    "Ghazir",
+    "Ehmej",
+    "Laklouk",
+    "Other in Jbeil",
+  ],
+
+  Batroun: [
+    "Batroun",
+    "Kfifane",
+    "Ijdabra",
+    "Hamat",
+    "Chekka",
+    "Other in Batroun",
+  ],
+
+  Becharre: [
+    "Becharre",
+    "Bcharre Cedars",
+    "Hadchit",
+    "Hasroun",
+    "Other in Becharre",
+  ],
+
+  Koura: ["Amioun", "Anfeh", "Kousba", "Deddeh", "Other in Koura"],
+
+  Zgharta: ["Zgharta", "Ehden", "Miziara", "Ardeh", "Other in Zgharta"],
+
+  Tripoli: ["Tripoli", "Mina", "Qobbeh", "Beddawi", "Other in Tripoli"],
+
+  "Minieh-Dennieh": ["Minieh", "Dennieh", "Bakhoun", "Other in Minieh-Dennieh"],
+
+  Akkar: ["Halba", "Kobayat", "Mekhayel", "Beino", "Other in Akkar"],
+
+  Baalbeck: [
+    "Baalbeck",
+    "Britel",
+    "Chlifa",
+    "Deir El Ahmar",
+    "Other in Baalbeck",
+  ],
+
+  Hermel: ["Hermel", "Qasr", "Ainata", "Other in Hermel"],
+
+  Zahle: ["Zahle", "Ferzol", "Kefraya", "Taanayel", "Niha", "Other in Zahle"],
+
+  "West Bekaa": [
+    "Joub Jannine",
+    "Saghbine",
+    "Khiara",
+    "Aitanit",
+    "Other in West Bekaa",
+  ],
+
+  Rachaya: ["Rachaya", "Kawkaba", "Ain Ata", "Other in Rachaya"],
+
+  "Saida (Sidon)": [
+    "Saida",
+    "Haret Saida",
+    "Abra",
+    "Majdelyoun",
+    "Other in Saida",
+  ],
+
+  Tyre: ["Tyre", "Abbassiyeh", "Qana", "Other in Tyre"],
+
+  Nabatieh: ["Nabatieh", "Kfar Remmen", "Zefta", "Other in Nabatieh"],
+
+  "Bint Jbeil": ["Bint Jbeil", "Ainata", "Rmeich", "Other in Bint Jbeil"],
+
+  Marjayoun: ["Marjayoun", "Khiam", "Deir Mimas", "Other in Marjayoun"],
+
+  Hasbaya: ["Hasbaya", "Kawkaba", "Habbariyeh", "Other in Hasbaya"],
+
+  Jezzine: ["Jezzine", "Roum", "Kfar Falous", "Other in Jezzine"],
 };
+
+// Aliases & helpers to make reverse geocoding match our districts
+const DISTRICT_ALIASES = {
+  Metn: ["Matn", "El Metn", "Maten", "Al Matn"],
+  Beirut: ["Beyrouth", "Beirut District"],
+  Baabda: ["Baabda District"],
+  Aley: ["Aley District"],
+  Chouf: ["Shouf", "Chouf District"],
+  Tripoli: ["Trablous", "Tripoli District"],
+  Tyre: ["Sour", "Tyre District"],
+  Zahle: ["Zahlé", "Zahle District"],
+  Akkar: ["Akkar District"],
+  "Minieh-Dennieh": ["Miniyeh-Danniyeh", "Minieh el Donniyeh"],
+  Baalbeck: ["Baalbek", "Baalbeck District"],
+  "West Bekaa": ["West Bekaa District"],
+  Rachaya: ["Rashaya", "Rachaya District"],
+  Hermel: ["Hermel District"],
+  Nabatieh: ["Nabatiyeh", "Nabatieh District"],
+  "Bint Jbeil": ["Bint Jbail"],
+  Marjayoun: ["Marjeyoun", "Marjaayoun"],
+  Hasbaya: ["Hasbaya District"],
+  "Saida (Sidon)": ["Saida", "Sidon"],
+};
+
+const titleCase = (s = "") =>
+  s
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (m) => m.toUpperCase());
+
+function normalizeDistrictName(raw) {
+  if (!raw) return null;
+  const val = raw.trim();
+  if (TOWNS_BY_DISTRICT[val]) return val;
+
+  for (const [canon, aliases] of Object.entries(DISTRICT_ALIASES)) {
+    if (aliases.some((a) => a.toLowerCase() === val.toLowerCase())) {
+      return canon;
+    }
+  }
+  return null;
+}
 
 export default function CreateShopPage() {
   const navigate = useNavigate();
@@ -125,6 +284,7 @@ export default function CreateShopPage() {
   const [level, setLevel] = React.useState("districts");
   const [currentDistrict, setCurrentDistrict] = React.useState(null);
   const [locationSearch, setLocationSearch] = React.useState("");
+  const [locationLoading, setLocationLoading] = React.useState(false);
 
   const fileInputRef = React.useRef(null);
 
@@ -165,6 +325,92 @@ export default function CreateShopPage() {
     }
   };
 
+  // Use current location (web) – same style as the app: "Badaro, Beirut, Lebanon"
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        address: "Geolocation is not supported in this browser",
+      }));
+      return;
+    }
+
+    setLocationLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+          );
+          const data = await res.json();
+          const addr = data.address || {};
+
+          const rawDistrict =
+            addr.county ||
+            addr.state_district ||
+            addr.region ||
+            addr.city ||
+            addr.state;
+
+          const district = normalizeDistrictName(rawDistrict) || "Metn";
+
+          let town = titleCase(
+            addr.suburb ||
+              addr.neighbourhood ||
+              addr.village ||
+              addr.town ||
+              addr.city ||
+              addr.road ||
+              ""
+          );
+
+          const towns = TOWNS_BY_DISTRICT[district] || [];
+          const hasExactTown = towns.some(
+            (t) => t.toLowerCase() === town.toLowerCase()
+          );
+
+          if (!hasExactTown) {
+            town = `Other in ${district}`;
+          }
+
+          // Final address like mobile: "Badaro, Beirut, Lebanon"
+          setAddress(`${town}, ${district}, Lebanon`);
+          setFieldErrors((prev) => ({ ...prev, address: undefined }));
+          setLocationModalOpen(false);
+          setLevel("districts");
+          setCurrentDistrict(null);
+          setLocationSearch("");
+        } catch (err) {
+          console.error("Reverse geocode error", err);
+          setFieldErrors((prev) => ({
+            ...prev,
+            address:
+              "Could not detect address from location. Please select it manually.",
+          }));
+        } finally {
+          setLocationLoading(false);
+        }
+      },
+      (error) => {
+        console.error("Geolocation error", error);
+        setFieldErrors((prev) => ({
+          ...prev,
+          address:
+            "Unable to get your current location. Please select it manually.",
+        }));
+        setLocationLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000,
+      }
+    );
+  };
+
   const handleLocationSelect = (item) => {
     if (level === "districts") {
       setCurrentDistrict(item);
@@ -186,7 +432,11 @@ export default function CreateShopPage() {
         d.toLowerCase().includes(locationSearch.toLowerCase())
       );
     } else {
-      return (TOWNS_BY_DISTRICT[currentDistrict] || []).filter((t) =>
+      const towns = TOWNS_BY_DISTRICT[currentDistrict];
+      if (!towns || towns.length === 0) {
+        return [`Other in ${currentDistrict}`];
+      }
+      return towns.filter((t) =>
         t.toLowerCase().includes(locationSearch.toLowerCase())
       );
     }
@@ -205,7 +455,6 @@ export default function CreateShopPage() {
       if (image?.file) {
         try {
           const uploadResult = await uploadShopImage(image.file);
-          // uploadResult = { path: "/uploads/..." }
           imageData = uploadResult.path || uploadResult.url || uploadResult;
         } catch (uploadErr) {
           setFieldErrors((prev) => ({
@@ -425,7 +674,7 @@ export default function CreateShopPage() {
                   mt: 0.25,
                 }}
               >
-                {address || "Select location"}
+                {address || "Use current location or select manually"}
               </Typography>
             </Box>
             <ChevronRightIcon sx={{ color: theme.palette.text.secondary }} />
@@ -639,7 +888,7 @@ export default function CreateShopPage() {
             </Typography>
           )}
 
-          {/* Action Buttons (MATCH CreateProductPage) */}
+          {/* Action Buttons */}
           <Box sx={{ mt: 2, display: "flex", gap: 1.5 }}>
             <AppButton
               type="button"
@@ -729,6 +978,47 @@ export default function CreateShopPage() {
               }}
             />
           </Box>
+
+          {/* Use current location row (only at districts level) */}
+          {level === "districts" && (
+            <Box sx={{ px: 2, pb: 1 }}>
+              <ListItem
+                disablePadding
+                sx={{
+                  mb: 0.5,
+                  borderBottom: `1px solid ${theme.palette.gray[100]}`,
+                }}
+              >
+                <ListItemButton
+                  onClick={handleUseCurrentLocation}
+                  disabled={locationLoading}
+                >
+                  <LocationIcon
+                    sx={{ mr: 1.5, color: theme.palette.secondary.main }}
+                  />
+                  <ListItemText
+                    primary={
+                      locationLoading
+                        ? "Getting your current location..."
+                        : "Use my current location"
+                    }
+                    secondary="Auto-detect your town & district"
+                  />
+                  {locationLoading ? (
+                    <CircularProgress
+                      size={18}
+                      sx={{ color: theme.palette.secondary.main }}
+                    />
+                  ) : (
+                    <ChevronRightIcon
+                      sx={{ color: theme.palette.text.secondary }}
+                    />
+                  )}
+                </ListItemButton>
+              </ListItem>
+            </Box>
+          )}
+
           <List sx={{ py: 0 }}>
             {filteredLocations.length > 0 ? (
               filteredLocations.map((item) => (

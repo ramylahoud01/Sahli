@@ -94,7 +94,7 @@ export default function PublicShopPage() {
   const { shopId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
-
+  console.log("shopId", shopId);
   const [shop, setShop] = React.useState(null);
   const [products, setProducts] = React.useState([]);
 
