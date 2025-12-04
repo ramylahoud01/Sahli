@@ -22,8 +22,6 @@ import PublicShopHeader from "./PublicShopHeader";
 import PublicProductCard from "./PublicProductCard";
 import CardLoading from "../../components/loading/CardLoading";
 
-const API_BASE = "http://10.5.50.243:4000";
-
 // debounce for search
 function useDebounce(value, delay = 400) {
   const [debouncedValue, setDebouncedValue] = React.useState(value);
@@ -768,7 +766,6 @@ export default function PublicShopPage() {
                     key={product._id}
                     product={product}
                     theme={theme}
-                    apiBase={API_BASE}
                     accentColor={shopThemeColor}
                   />
                 ))}

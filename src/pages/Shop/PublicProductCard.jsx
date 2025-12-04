@@ -3,12 +3,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 
-export default function PublicProductCard({
-  product,
-  theme,
-  apiBase,
-  accentColor,
-}) {
+export default function PublicProductCard({ product, theme, accentColor }) {
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
   const images = React.useMemo(() => {
@@ -18,7 +13,7 @@ export default function PublicProductCard({
       if (!imgUrl) return "";
       return imgUrl;
     });
-  }, [product.images, apiBase]);
+  }, [product.images]);
 
   const price = product.price || 0;
   const category =

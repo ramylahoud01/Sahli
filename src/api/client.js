@@ -1,12 +1,11 @@
 // src/api/client.js
-const BASE_URL = (
-  import.meta.env.VITE_API_URL || "http://10.5.50.243:4000/api"
-).replace(/\/+$/, "");
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 async function request(
   path,
   { method = "GET", body, token, headers: extraHeaders } = {}
 ) {
+  console.log("BASE_URL", BASE_URL);
   const isFormData = body instanceof FormData;
 
   const headers = { ...(extraHeaders || {}) };
