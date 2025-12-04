@@ -135,7 +135,6 @@ export default function CreateProductPage() {
         setCategoriesLoading(true);
         setCategoriesError("");
         const cats = await listCategories();
-        console.log("[CreateProductPage] fetched categories:", cats);
         setCategories(Array.isArray(cats) ? cats : []);
       } catch (e) {
         console.error("[CreateProductPage] error loading categories:", e);
@@ -167,7 +166,6 @@ export default function CreateProductPage() {
   /* ---------- when subcategory changes → set dynamic fields ---------- */
   React.useEffect(() => {
     if (!currentSubcat) {
-      console.log("[CreateProductPage] no currentSubcat, clearing fields.");
       setDynamicFields([]);
       setAttributes({});
       setDynamicErrors({});
@@ -181,10 +179,6 @@ export default function CreateProductPage() {
       [];
 
     const normalized = normalizeDynamicFields(raw);
-
-    console.log("[CreateProductPage] currentSubcat:", currentSubcat);
-    console.log("[CreateProductPage] raw dynamic fields:", raw);
-    console.log("[CreateProductPage] normalized dynamic fields:", normalized);
 
     setDynamicFields(normalized);
     setAttributes({});
@@ -221,7 +215,6 @@ export default function CreateProductPage() {
       }
     }
     if (Object.keys(errs).length) {
-      console.log("[CreateProductPage] dynamic field validation errors:", errs);
     }
     return errs;
   };
@@ -254,8 +247,6 @@ export default function CreateProductPage() {
       type: file.type || "image/jpeg",
     }));
 
-    console.log("[CreateProductPage] selected images:", newItems);
-
     setImages((prev) => [...prev, ...newItems]);
     setFieldErrors((prev) => ({ ...prev, images: undefined }));
 
@@ -283,12 +274,6 @@ export default function CreateProductPage() {
         throw new Error(`Unsupported file type for ${file.name || "image"}`);
       }
 
-      console.log(
-        "[CreateProductPage] uploading image",
-        i,
-        file.name,
-        file.type
-      );
       const path = await uploadProductImage(file);
       urls.push(path);
       setUploadProgress((i + 1) / images.length);
@@ -366,11 +351,6 @@ export default function CreateProductPage() {
         attributes,
         images: uploadedUrls,
       };
-
-      console.log("[CreateProductPage] submit payload:", {
-        shopId,
-        payload,
-      });
 
       await createProduct(shopId, payload);
 
@@ -1103,10 +1083,6 @@ export default function CreateProductPage() {
                 <ListItem key={cat._id} disablePadding>
                   <ListItemButton
                     onClick={() => {
-                      console.log(
-                        "[CreateProductPage] category selected:",
-                        cat
-                      );
                       setCategoryId(cat._id);
                       setSubcategoryId("");
                       setCategoryModalOpen(false);
@@ -1186,10 +1162,6 @@ export default function CreateProductPage() {
               <ListItem key={sub._id} disablePadding>
                 <ListItemButton
                   onClick={() => {
-                    console.log(
-                      "[CreateProductPage] subcategory selected:",
-                      sub
-                    );
                     setSubcategoryId(sub._id);
                     setSubcatModalOpen(false);
                     setFieldErrors((prev) => ({

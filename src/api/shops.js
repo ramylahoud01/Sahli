@@ -1,5 +1,6 @@
 // src/api/shops.js
 import { secureRequest } from "./auth";
+import { request } from "./client";
 
 export async function getMyShops(params = {}) {
   // Build query string from params
@@ -28,8 +29,6 @@ export async function getMyShops(params = {}) {
 }
 
 export async function createShop(payload) {
-  console.log("payload", payload);
-
   const res = await secureRequest("/shops", {
     method: "POST",
     body: payload,
@@ -68,16 +67,19 @@ export async function getShopById(shopId) {
     throw new Error("Shop id is required");
   }
 
-  const res = await secureRequest(`/shops/${shopId}`, {
+  const res = await request(`/shops/${shopId}`, {
     method: "GET",
   });
 
   // ok() wraps as { success, data: shop, message? }
   return res.data || res || null;
 }
-
 export async function getShopSubcategories(shopId) {
-  const res = await secureRequest(`/shops/${shopId}/subcategories`, {
+  if (!shopId) {
+    throw new Error("Shop id is required");
+  }
+
+  const res = await request(`/shops/${shopId}/subcategories`, {
     method: "GET",
   });
 

@@ -1,5 +1,6 @@
 // src/api/products.js
 import { secureRequest } from "./auth";
+import { request } from "./client";
 
 /**
  * List products by shop (seller view, authenticated)
@@ -43,18 +44,10 @@ export async function uploadProductImage(file) {
   const form = new FormData();
   form.append("file", file);
 
-  console.log("[uploadProductImage] POST /uploads file:", {
-    name: file.name,
-    type: file.type,
-    size: file.size,
-  });
-
   const res = await secureRequest("/uploads", {
     method: "POST",
     body: form,
   });
-
-  console.log("[uploadProductImage] response:", res);
 
   const data = res?.data || res || {};
   const path = data?.data?.path || data?.path || data?.data?.url;
@@ -107,11 +100,10 @@ export async function listPublicShopProducts(
 
   const url = `/shops/${shopId}/products?${params.toString()}`;
 
-  const res = await secureRequest(url, {
+  const res = await request(url, {
     method: "GET",
   });
 
-  // ok() wraps as { success, data: { items, total, page, pageSize, hasMore } }
   return (
     res.data ||
     res || { items: [], total: 0, page, pageSize: 0, hasMore: false }

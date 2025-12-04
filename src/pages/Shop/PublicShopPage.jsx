@@ -94,7 +94,6 @@ export default function PublicShopPage() {
   const { shopId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
-  console.log("shopId", shopId);
   const [shop, setShop] = React.useState(null);
   const [products, setProducts] = React.useState([]);
 
@@ -276,7 +275,6 @@ export default function PublicShopPage() {
   if ((shopLoading || !initialProductsLoaded) && !notFound && !error) {
     return <PublicShopPageLoading />;
   }
-
   // ⚠️ These two branches run before shopThemeColor exists, so we don't pass it here
   if (error && !notFound) {
     return (

@@ -5,7 +5,6 @@ async function request(
   path,
   { method = "GET", body, token, headers: extraHeaders } = {}
 ) {
-  console.log("BASE_URL", BASE_URL);
   const isFormData = body instanceof FormData;
 
   const headers = { ...(extraHeaders || {}) };
