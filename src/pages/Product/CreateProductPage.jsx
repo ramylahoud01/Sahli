@@ -207,11 +207,23 @@ export default function CreateProductPage() {
     for (const f of dynamicFields) {
       if (!f.required) continue;
       const v = attributes[f.key];
-      if (
-        f.inputType === "boolean"
-          ? v === undefined || v === null
-          : v === undefined || v === null || v === ""
-      ) {
+
+      if (f.inputType === "boolean") {
+        if (v === undefined || v === null) {
+          errs[f.key] = `${f.label} is required`;
+        }
+        continue;
+      }
+
+      if (f.inputType === "multi-select") {
+        if (!Array.isArray(v) || v.length === 0) {
+          errs[f.key] = `${f.label} is required`;
+        }
+        continue;
+      }
+
+      // default (text / number / select)
+      if (v === undefined || v === null || v === "") {
         errs[f.key] = `${f.label} is required`;
       }
     }
@@ -426,7 +438,6 @@ export default function CreateProductPage() {
       : "";
 
   if (!shopId) return null;
-
   return (
     <>
       <AnimatedBackground
@@ -764,7 +775,6 @@ export default function CreateProductPage() {
                         const value = attributes[field.key];
                         const error = dynamicErrors[field.key];
                         const isRequired = field.required === true;
-
                         if (field.inputType === "boolean") {
                           return (
                             <Box key={field.key} sx={{ mb: 1 }}>
@@ -847,9 +857,49 @@ export default function CreateProductPage() {
                           );
                         }
 
+                        if (field.inputType === "multi-select") {
+                          const selectedValues = Array.isArray(value)
+                            ? value
+                            : [];
+
+                          return (
+                            <TextField
+                              key={field.key}
+                              {...textFieldProps}
+                              select
+                              label={`${field.label}${isRequired ? " *" : ""}`}
+                              value={selectedValues}
+                              onChange={(e) =>
+                                handleAttributeChange(field.key, e.target.value)
+                              }
+                              helperText={error}
+                              error={!!error}
+                              SelectProps={{
+                                multiple: true,
+                                renderValue: (selected) =>
+                                  (selected || []).join(", "),
+                              }}
+                            >
+                              {(field.options || []).map((opt, idx) => {
+                                const optVal =
+                                  typeof opt === "object"
+                                    ? opt.value ?? opt.label ?? idx
+                                    : opt;
+                                const optLabel =
+                                  typeof opt === "object"
+                                    ? opt.label ?? String(optVal)
+                                    : String(opt);
+                                return (
+                                  <MenuItem key={idx} value={String(optVal)}>
+                                    {optLabel}
+                                  </MenuItem>
+                                );
+                              })}
+                            </TextField>
+                          );
+                        }
                         const keyboardType =
                           field.inputType === "number" ? "number" : "text";
-
                         return (
                           <TextField
                             key={field.key}

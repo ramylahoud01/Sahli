@@ -21,8 +21,6 @@ const parallax = keyframes`
 
 export default function AnimatedBackground({ primaryColor, secondaryColor }) {
   const theme = useTheme();
-  console.log("primaryColor", primaryColor);
-  console.log("secondaryColor", secondaryColor);
   // Use provided props OR theme fallback
   const dark = primaryColor || theme.palette.primary.main;
   const mint = secondaryColor || theme.palette.secondary.main;
