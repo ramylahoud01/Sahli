@@ -1,4 +1,3 @@
-// src/api/client.js
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 async function request(
@@ -15,20 +14,41 @@ async function request(
   }
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const response = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
     body: body
       ? isFormData
-        ? body // send FormData as-is
+        ? body // FormData → send as-is
         : JSON.stringify(body)
       : undefined,
   });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok || json.success === false) {
-    const msg = json?.message || `HTTP ${res.status}`;
-    const err = new Error(msg);
-    err.status = res.status;
+
+  let json = {};
+  try {
+    json = await response.json();
+  } catch {}
+
+  // ---- ERROR HANDLING ----
+  // If HTTP is not OK → throw
+  if (!response.ok) {
+    const err = new Error(json?.message || `HTTP ${response.status}`);
+    err.status = response.status;
+    err.data = json?.data;
+    throw err;
+  }
+
+  // If backend returns success: false → also treat as an error
+  if (json.success === false) {
+    // Detect expired tokens even if backend sends 200
+    if (json.errorCode === "TOKEN_EXPIRED") {
+      const err = new Error("Token expired");
+      err.status = 401;
+      throw err;
+    }
+
+    const err = new Error(json?.message || "Request failed");
+    err.status = json?.status || 400;
     err.data = json?.data;
     throw err;
   }

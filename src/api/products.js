@@ -4,31 +4,43 @@ import { request } from "./client";
 
 /**
  * List products by shop (seller view, authenticated)
+ * Backend: GET /products/shop/:shopId?page=&limit=&search=
  */
 export async function listByShop(
   shopId,
   { page = 1, limit = 10, search = "" } = {}
 ) {
-  // Build query string
-  let queryString = `page=${page}&limit=${limit}`;
-
-  // Add search parameter if it exists
-  if (search && search.trim()) {
-    queryString += `&search=${encodeURIComponent(search.trim())}`;
+  if (!shopId) {
+    throw new Error("Shop id is required");
   }
 
-  const res = await secureRequest(`/products/shop/${shopId}?${queryString}`, {
+  const params = new URLSearchParams();
+  params.set("page", page);
+  params.set("limit", limit);
+
+  if (search && search.trim()) {
+    params.set("search", search.trim());
+  }
+
+  const url = `/products/shop/${shopId}?${params.toString()}`;
+
+  const res = await secureRequest(url, {
     method: "GET",
   });
 
-  // Keep same shape as before
-  return res.data || { items: [], total: 0 };
+  // request/secureRequest returns { success, data, message }
+  return res.data || res || { items: [], total: 0 };
 }
 
 /**
- * Create product
+ * Create product (authenticated)
+ * Backend: POST /products
  */
 export async function createProduct(shopId, payload) {
+  if (!shopId) {
+    throw new Error("Shop id is required");
+  }
+
   const res = await secureRequest("/products", {
     method: "POST",
     body: { ...payload, shop: shopId },
@@ -38,9 +50,14 @@ export async function createProduct(shopId, payload) {
 }
 
 /**
- * Upload a product image (WEB)
+ * Upload a product image (WEB, authenticated)
+ * Backend: POST /uploads → ok(res, { path: "/uploads/..." })
  */
 export async function uploadProductImage(file) {
+  if (!file) {
+    throw new Error("File is required");
+  }
+
   const form = new FormData();
   form.append("file", file);
 
@@ -49,8 +66,9 @@ export async function uploadProductImage(file) {
     body: form,
   });
 
-  const data = res?.data || res || {};
-  const path = data?.data?.path || data?.path || data?.data?.url;
+  // res = { success, message, data: { path } }
+  const data = res.data || res || {};
+  const path = data.path || data.url;
 
   if (!path) {
     throw new Error("Upload succeeded but no file path returned.");

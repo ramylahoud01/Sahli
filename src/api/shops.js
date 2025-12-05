@@ -2,8 +2,8 @@
 import { secureRequest } from "./auth";
 import { request } from "./client";
 
+// ---------- Authenticated (needs token + refresh) ----------
 export async function getMyShops(params = {}) {
-  // Build query string from params
   const searchParams = new URLSearchParams();
 
   if (params.page) searchParams.append("page", params.page);
@@ -12,7 +12,7 @@ export async function getMyShops(params = {}) {
     searchParams.append("search", params.search.trim());
   }
 
-  // In case you later pass extra filters, include them generically
+  // Extra filters, just in case
   Object.entries(params).forEach(([key, value]) => {
     if (["page", "limit", "search"].includes(key)) return;
     if (value !== undefined && value !== null && value !== "") {
@@ -21,10 +21,12 @@ export async function getMyShops(params = {}) {
   });
 
   const queryString = searchParams.toString();
+  // ⚠️ Make sure this matches your backend route: /shops/me or /shops/my
   const url = `/shops/me${queryString ? `?${queryString}` : ""}`;
 
   const res = await secureRequest(url, { method: "GET" });
-  // keep same shape as before
+
+  // secureRequest → request → { success, data, message }
   return res.data || res || [];
 }
 
@@ -34,14 +36,13 @@ export async function createShop(payload) {
     body: payload,
   });
 
-  // keep same shape as before
   return res.data || res;
 }
 
 export const uploadShopImage = async (file) => {
   try {
     const formData = new FormData();
-    // 👇 MUST MATCH multer upload.single("file")
+    // MUST MATCH multer upload.single("file")
     formData.append("file", file);
 
     const response = await secureRequest("/uploads", {
@@ -58,6 +59,7 @@ export const uploadShopImage = async (file) => {
   }
 };
 
+// ---------- Public (no auth required) ----------
 /**
  * Public: get a single shop by id
  * Backend: GET /shops/:id → ok(res, shop)
@@ -74,6 +76,7 @@ export async function getShopById(shopId) {
   // ok() wraps as { success, data: shop, message? }
   return res.data || res || null;
 }
+
 export async function getShopSubcategories(shopId) {
   if (!shopId) {
     throw new Error("Shop id is required");

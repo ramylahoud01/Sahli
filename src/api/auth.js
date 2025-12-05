@@ -13,7 +13,8 @@ export function getRefreshToken() {
   return localStorage.getItem(REFRESH_KEY) || null;
 }
 
-function setTokens({ access, refresh }) {
+function setTokens(payload = {}) {
+  const { access, refresh } = payload;
   if (access) localStorage.setItem(TOKEN_KEY, access);
   if (refresh) localStorage.setItem(REFRESH_KEY, refresh);
 }
@@ -30,10 +31,11 @@ export async function login({ email, password }) {
     body: { email, password },
   });
 
+  // res is { success, data, message }
   const payload = res.data || res;
   setTokens(payload);
 
-  return payload;
+  return payload; // { user, access, refresh }
 }
 
 export async function register({ name, email, password }) {
@@ -55,7 +57,7 @@ export async function refreshAccessToken() {
       body: { refresh },
     });
 
-    const payload = res.data || res;
+    const payload = res.data || res; // expected { access, refresh }
     setTokens(payload);
 
     return payload;
@@ -71,15 +73,17 @@ export async function refreshAccessToken() {
 export async function secureRequest(path, options = {}) {
   let token = getAccessToken();
   if (!token) {
-    throw new Error("Not authenticated");
+    const err = new Error("Not authenticated");
+    err.status = 401;
+    throw err;
   }
 
   try {
     // First attempt with current access token
     return await request(path, { ...options, token });
   } catch (err) {
-    // If not 401, just rethrow
-    if (err?.status !== 401) {
+    // If not auth-related, just rethrow
+    if (err?.status !== 401 && err?.status !== 403) {
       throw err;
     }
 
@@ -105,7 +109,7 @@ export async function getMe() {
     return res.data || res;
   } catch (err) {
     // If user is not authenticated (no token / refresh fail), just return null
-    if (err?.status === 401) {
+    if (err?.status === 401 || err?.status === 403) {
       return null;
     }
     throw err;
