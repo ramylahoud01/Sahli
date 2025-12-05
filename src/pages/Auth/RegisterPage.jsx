@@ -19,7 +19,13 @@ import AnimatedBackground from "../../Background/AnimatedBackground";
 export default function RegisterPage() {
   const navigate = useNavigate();
   const theme = useTheme();
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -39,8 +45,22 @@ export default function RegisterPage() {
 
     try {
       setLoading(true);
-      await register(form);
-      navigate("/login");
+      const result = await register(form);
+
+      // backend: ok(res, { pending: true, pendingId }, "Verification code sent", 202)
+      if (result?.pending && result.pendingId) {
+        navigate("/verify-signup", {
+          state: {
+            pendingId: result.pendingId,
+            email: form.email,
+            phone: form.phone,
+            name: form.name,
+          },
+        });
+      } else {
+        // fallback if backend changes later
+        navigate("/login");
+      }
     } catch (err) {
       if (err?.data && Array.isArray(err.data)) {
         const map = {};
@@ -102,7 +122,7 @@ export default function RegisterPage() {
         secondaryColor={theme.palette.secondary.main}
       />
 
-      {/* ⭐ Foreground content (unchanged layout) */}
+      {/* ⭐ Foreground content */}
       <Box
         sx={{
           position: "relative",
@@ -201,6 +221,18 @@ export default function RegisterPage() {
                     fullWidth
                     variant="outlined"
                     helperText={fieldErrors.email}
+                    sx={textFieldStyles}
+                  />
+
+                  {/* Phone (optional) */}
+                  <TextField
+                    name="phone"
+                    label="Phone (optional)"
+                    value={form.phone}
+                    onChange={onChange}
+                    fullWidth
+                    variant="outlined"
+                    helperText={fieldErrors.phone}
                     sx={textFieldStyles}
                   />
 

@@ -5,6 +5,7 @@ import Layout from "./components/Home/Layout";
 
 import LoginPage from "./pages/Auth/LoginPage.jsx";
 import RegisterPage from "./pages/Auth/RegisterPage.jsx";
+import VerifySignupPage from "./pages/Auth/VerifySignupPage.jsx";
 
 import MyShopsPage from "./pages/Shop/MyShopsPage";
 import CreateShopPage from "./pages/Shop/CreateShopPage";
@@ -33,6 +34,7 @@ export default function App() {
                 {/* Auth */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/verify-signup" element={<VerifySignupPage />} />
 
                 {/* Shops */}
                 <Route path="/shops" element={<MyShopsPage />} />

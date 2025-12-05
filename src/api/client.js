@@ -17,11 +17,7 @@ async function request(
   const response = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
-    body: body
-      ? isFormData
-        ? body // FormData → send as-is
-        : JSON.stringify(body)
-      : undefined,
+    body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
   });
 
   let json = {};

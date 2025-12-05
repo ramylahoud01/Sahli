@@ -46,6 +46,17 @@ export async function register({ name, email, password }) {
   return res.data || res;
 }
 
+export async function verifySignup({ pendingId, code }) {
+  console.log("pendingId", pendingId);
+  console.log("code", code);
+  const res = await request("/auth/verify-code", {
+    method: "POST",
+    body: { pendingId, code },
+  });
+  console.log("res", res);
+  return res.data || res;
+}
+
 // ---------- Refresh access token ----------
 export async function refreshAccessToken() {
   const refresh = getRefreshToken();
