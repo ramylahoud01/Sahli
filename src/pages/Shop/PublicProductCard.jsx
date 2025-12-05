@@ -35,25 +35,26 @@ export default function PublicProductCard({ product, theme, accentColor }) {
     <Box
       sx={{
         cursor: "default",
-        borderRadius: 1.5,
+        borderRadius: "12px",
         overflow: "hidden",
         backgroundColor: theme.palette.background.paper,
-        border: `1px solid ${theme.palette.gray[200]}`,
-        boxShadow: "0 1px 3px rgba(15,23,42,0.04)",
+        border: `1px solid ${theme.palette.grey[200]}`,
+        boxShadow: "0 2px 8px rgba(15, 23, 42, 0.04)",
         transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
         "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: "0 16px 30px rgba(15,23,42,0.08)",
+          transform: "translateY(-4px)",
+          boxShadow: "0 12px 28px rgba(15, 23, 42, 0.12)",
+          borderColor: theme.palette.grey[300],
         },
       }}
     >
-      {/* Image + badges */}
+      {/* Image + badges - BIGGER IMAGE */}
       <Box
         sx={{
           position: "relative",
           width: "100%",
-          paddingTop: "56.25%",
-          backgroundColor: theme.palette.gray[50],
+          paddingTop: "75%", // Changed from 56.25% (16:9) to 75% (4:3) for bigger image
+          backgroundColor: theme.palette.grey[50],
         }}
       >
         {images.length > 0 ? (
@@ -67,7 +68,8 @@ export default function PublicProductCard({ product, theme, accentColor }) {
               left: 0,
               width: "100%",
               height: "100%",
-              objectFit: "cover",
+              objectFit: "contain", // Changed from cover to contain to show full image
+              transition: "transform 0.3s ease",
             }}
           />
         ) : (
@@ -84,38 +86,44 @@ export default function PublicProductCard({ product, theme, accentColor }) {
               color: theme.palette.text.secondary,
             }}
           >
-            <Typography sx={{ fontSize: 32 }}>📦</Typography>
+            <Typography sx={{ fontSize: 40 }}>📦</Typography>
           </Box>
         )}
 
-        {/* Navigation arrows */}
+        {/* Navigation arrows - Refined styling */}
         {images.length > 1 && (
           <>
             <Box
               onClick={handlePrevImage}
               sx={{
                 position: "absolute",
-                left: 6,
+                left: 8,
                 top: "50%",
                 transform: "translateY(-50%)",
-                width: 26,
-                height: 26,
+                width: 32,
+                height: 32,
                 borderRadius: "50%",
-                backgroundColor: alpha(theme.palette.background.paper, 0.9),
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                backdropFilter: "blur(8px)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(15, 23, 42, 0.15)",
                 transition: "all 0.2s ease",
+                opacity: 0.9,
                 "&:hover": {
-                  backgroundColor: alpha(theme.palette.background.paper, 1),
+                  opacity: 1,
+                  transform: "translateY(-50%) scale(1.1)",
+                  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.2)",
                 },
               }}
             >
               <Typography
                 sx={{
                   color: theme.palette.text.primary,
-                  fontSize: 18,
+                  fontSize: 20,
+                  fontWeight: 600,
                   lineHeight: 1,
                   display: "flex",
                   alignItems: "center",
@@ -130,27 +138,33 @@ export default function PublicProductCard({ product, theme, accentColor }) {
               onClick={handleNextImage}
               sx={{
                 position: "absolute",
-                right: 6,
+                right: 8,
                 top: "50%",
                 transform: "translateY(-50%)",
-                width: 26,
-                height: 26,
+                width: 32,
+                height: 32,
                 borderRadius: "50%",
-                backgroundColor: alpha(theme.palette.background.paper, 0.9),
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                backdropFilter: "blur(8px)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(15, 23, 42, 0.15)",
                 transition: "all 0.2s ease",
+                opacity: 0.9,
                 "&:hover": {
-                  backgroundColor: alpha(theme.palette.background.paper, 1),
+                  opacity: 1,
+                  transform: "translateY(-50%) scale(1.1)",
+                  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.2)",
                 },
               }}
             >
               <Typography
                 sx={{
                   color: theme.palette.text.primary,
-                  fontSize: 18,
+                  fontSize: 20,
+                  fontWeight: 600,
                   lineHeight: 1,
                   display: "flex",
                   alignItems: "center",
@@ -163,25 +177,26 @@ export default function PublicProductCard({ product, theme, accentColor }) {
           </>
         )}
 
-        {/* Image counter */}
+        {/* Image counter - Enhanced styling */}
         {images.length > 1 && (
           <Box
             sx={{
               position: "absolute",
-              bottom: 6,
+              bottom: 8,
               left: "50%",
               transform: "translateX(-50%)",
-              px: 1,
-              py: 0.4,
-              borderRadius: 999,
-              backgroundColor: "rgba(15,23,42,0.6)",
-              backdropFilter: "blur(4px)",
+              px: 1.5,
+              py: 0.5,
+              borderRadius: "12px",
+              backgroundColor: "rgba(15, 23, 42, 0.75)",
+              backdropFilter: "blur(8px)",
+              boxShadow: "0 2px 8px rgba(15, 23, 42, 0.2)",
             }}
           >
             <Typography
               sx={{
                 color: "#fff",
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: 600,
                 lineHeight: 1,
               }}
@@ -191,23 +206,27 @@ export default function PublicProductCard({ product, theme, accentColor }) {
           </Box>
         )}
 
-        {/* Price badge */}
+        {/* Price badge - Enhanced styling */}
         <Box
           sx={{
             position: "absolute",
-            top: 6,
-            right: 6,
-            px: 1.1,
-            py: 0.45,
-            borderRadius: 999,
-            backgroundColor: alpha(accentColor, 0.7),
+            top: 8,
+            right: 8,
+            px: 1.5,
+            py: 0.6,
+            borderRadius: "12px",
+            backgroundColor: accentColor || theme.palette.primary.main,
+            boxShadow: `0 2px 12px ${alpha(
+              accentColor || theme.palette.primary.main,
+              0.4
+            )}`,
           }}
         >
           <Typography
             sx={{
               color: theme.palette.common.white,
-              fontSize: 11,
-              fontWeight: 600,
+              fontSize: 12,
+              fontWeight: 700,
               lineHeight: 1,
             }}
           >
@@ -216,43 +235,53 @@ export default function PublicProductCard({ product, theme, accentColor }) {
         </Box>
       </Box>
 
-      {/* Content */}
+      {/* Content - Reduced padding to balance larger image */}
       <Box
         sx={{
-          p: 1.6,
+          p: 2,
           display: "flex",
           flexDirection: "column",
-          gap: 0.8,
+          gap: 0.75,
         }}
       >
         <Typography
           sx={{
-            fontWeight: 500,
-            fontSize: 14,
-            lineHeight: 1.35,
-            color: theme.palette.primary.main,
+            fontWeight: 600,
+            fontSize: 14.5,
+            lineHeight: 1.4,
+            color: theme.palette.text.primary,
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
+            minHeight: "2.8em", // Ensures consistent height
           }}
         >
           {product.title}
         </Typography>
 
         {category && (
-          <Typography
+          <Box
             sx={{
-              fontSize: 11.5,
-              color: theme.palette.text.secondary,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.5,
+              alignSelf: "flex-start",
             }}
           >
-            🏷️ {category}
-          </Typography>
+            <Typography
+              sx={{
+                fontSize: 12,
+                color: theme.palette.text.secondary,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              🏷️ {category}
+            </Typography>
+          </Box>
         )}
       </Box>
     </Box>

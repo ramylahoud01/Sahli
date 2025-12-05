@@ -17,6 +17,7 @@ import { getMyShops } from "../../api/shops";
 import { getAccessToken } from "../../api/auth";
 import NoResults from "../../components/Empty/NoResults";
 import ProductCardSkeleton from "../../components/loading/MyProductPageLoading";
+import AnimatedBackground from "../../Background/AnimatedBackground";
 
 // Custom debounce hook
 function useDebounce(value, delay) {
@@ -142,212 +143,198 @@ export default function MyShopsPage() {
   };
 
   return (
-    <Box
-      sx={{
-        backgroundColor: theme.palette.background.default,
-        minHeight: "100vh",
-        py: { xs: 3, sm: 4 },
-      }}
-    >
+    <>
+      {/* Animated background behind the page */}
+      <AnimatedBackground
+        primaryColor={theme.palette.primary.main}
+        secondaryColor={theme.palette.secondary.main}
+      />
+
       <Box
         sx={{
-          maxWidth: 1400,
-          mx: "auto",
-          px: { xs: 2.5, sm: 3.5, md: 4 },
+          position: "relative",
+          zIndex: 1,
+          backgroundColor: theme.palette.background.default,
+          minHeight: "100vh",
+          py: { xs: 3, sm: 4 },
         }}
       >
-        {/* Header */}
         <Box
           sx={{
-            mb: 3,
+            maxWidth: 1400,
+            mx: "auto",
+            px: { xs: 2.5, sm: 3.5, md: 4 },
           }}
         >
-          <Box sx={{ mb: 2.5, textAlign: "center" }}>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 800,
-                fontSize: { xs: "2rem", md: "2.5rem" },
-                color: theme.palette.text.primary,
-                mb: 0.75,
-                opacity: 0.85,
-              }}
-            >
-              Your{" "}
-              <Box
-                component="span"
-                sx={{ color: theme.palette.secondary.main }}
-              >
-                Shop
-              </Box>{" "}
-              Collection
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 15,
-                color: theme.palette.gray[500],
-                opacity: 0.9,
-                fontStyle: "italic",
-              }}
-            >
-              Manage and track all your shops in one place
-            </Typography>
-          </Box>
-
-          {/* Search Bar + Create Button Row */}
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              alignItems: "center",
-              flexDirection: { xs: "column", sm: "row" },
-            }}
-          >
-            {/* Search Bar */}
-            <Box
-              sx={{
-                flex: 1,
-                width: { xs: "100%", sm: "auto" },
-                position: "relative",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  backgroundColor: theme.palette.gray[50],
-                  border: `1.5px solid ${
-                    focused
-                      ? theme.palette.secondary.main
-                      : theme.palette.gray[200]
-                  }`,
-                  borderRadius: 1.25,
-                  px: 2,
-                  height: 48,
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <SearchIcon
-                  sx={{
-                    color: theme.palette.text.secondary,
-                    mr: 1,
-                    fontSize: 22,
-                  }}
-                />
-                <InputBase
-                  placeholder="Search shops..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setFocused(true)}
-                  onBlur={() => setFocused(false)}
-                  sx={{
-                    flex: 1,
-                    fontFamily: theme.typography.fontFamily,
-                    fontSize: 15.5,
-                    letterSpacing: 0.1,
-                    color: theme.palette.text.primary,
-                    "& input::placeholder": {
-                      color: theme.palette.text.secondary,
-                      opacity: 0.8,
-                    },
-                  }}
-                />
-                {searchQuery && (
-                  <Box
-                    onClick={handleSearchClear}
-                    sx={{
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: theme.palette.text.secondary,
-                      "&:hover": {
-                        color: theme.palette.text.primary,
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontSize: 20 }}>×</Typography>
-                  </Box>
-                )}
-              </Box>
-            </Box>
-
-            {/* Create Shop Button */}
-            <AppButton
-              onClick={() => navigate("/shops/new")}
-              sx={{
-                py: 1.25,
-                px: 3,
-                fontSize: 14,
-                fontWeight: 500,
-                height: 48,
-                whiteSpace: "nowrap",
-                width: { xs: "100%", sm: "auto" },
-              }}
-            >
-              Create Shop
-            </AppButton>
-          </Box>
-        </Box>
-
-        {/* Error Alert */}
-        {error && (
+          {/* Header */}
           <Box
             sx={{
               mb: 3,
-              p: 2.5,
-              borderRadius: 1.5,
-              backgroundColor: "#fee",
-              border: "1px solid #fcc",
             }}
           >
-            <Typography
-              sx={{
-                color: "#c33",
-                fontSize: 14,
-                fontWeight: 500,
-              }}
-            >
-              {error}
-            </Typography>
-          </Box>
-        )}
-
-        {/* Stats and Items Per Page */}
-        {!loading && totalItems > 0 && (
-          <Box
-            sx={{
-              mb: 2.5,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexDirection: { xs: "column", sm: "row" },
-              gap: 2,
-            }}
-          >
-            <Typography
-              sx={{
-                fontSize: 14,
-                fontWeight: 500,
-                color: theme.palette.text.secondary,
-              }}
-            >
-              {hasSearch && (
+            <Box sx={{ mb: 2.5, textAlign: "center" }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 800,
+                  fontSize: { xs: "2rem", md: "2.5rem" },
+                  color: theme.palette.text.primary,
+                  mb: 0.75,
+                  opacity: 0.85,
+                }}
+              >
+                Your{" "}
                 <Box
                   component="span"
-                  sx={{ fontWeight: 600, color: theme.palette.text.primary }}
+                  sx={{ color: theme.palette.secondary.main }}
                 >
-                  Search results:{" "}
-                </Box>
-              )}
-              Showing {(page - 1) * itemsPerPage + 1} -{" "}
-              {Math.min(page * itemsPerPage, totalItems)} of {totalItems}{" "}
-              {totalItems === 1 ? "shop" : "shops"} • {totalProducts}{" "}
-              {totalProducts === 1 ? "product" : "products"}
-            </Typography>
+                  Shop
+                </Box>{" "}
+                Collection
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 15,
+                  color: theme.palette.gray[500],
+                  opacity: 0.9,
+                  fontStyle: "italic",
+                }}
+              >
+                Manage and track all your shops in one place
+              </Typography>
+            </Box>
 
-            {/* Items Per Page Selector */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            {/* Search Bar + Create Button Row */}
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                alignItems: "center",
+                flexDirection: { xs: "column", sm: "row" },
+              }}
+            >
+              {/* Search Bar */}
+              <Box
+                sx={{
+                  flex: 1,
+                  width: { xs: "100%", sm: "auto" },
+                  position: "relative",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    backgroundColor: theme.palette.gray[50],
+                    border: `1.5px solid ${
+                      focused
+                        ? theme.palette.secondary.main
+                        : theme.palette.gray[200]
+                    }`,
+                    borderRadius: 1.25,
+                    px: 2,
+                    height: 48,
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <SearchIcon
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      mr: 1,
+                      fontSize: 22,
+                    }}
+                  />
+                  <InputBase
+                    placeholder="Search shops..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                    sx={{
+                      flex: 1,
+                      fontFamily: theme.typography.fontFamily,
+                      fontSize: 15.5,
+                      letterSpacing: 0.1,
+                      color: theme.palette.text.primary,
+                      "& input::placeholder": {
+                        color: theme.palette.text.secondary,
+                        opacity: 0.8,
+                      },
+                    }}
+                  />
+                  {searchQuery && (
+                    <Box
+                      onClick={handleSearchClear}
+                      sx={{
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: theme.palette.text.secondary,
+                        "&:hover": {
+                          color: theme.palette.text.primary,
+                        },
+                      }}
+                    >
+                      <Typography sx={{ fontSize: 20 }}>×</Typography>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+
+              {/* Create Shop Button */}
+              <AppButton
+                onClick={() => navigate("/shops/new")}
+                sx={{
+                  py: 1.25,
+                  px: 3,
+                  fontSize: 14,
+                  fontWeight: 500,
+                  height: 48,
+                  whiteSpace: "nowrap",
+                  width: { xs: "100%", sm: "auto" },
+                }}
+              >
+                Create Shop
+              </AppButton>
+            </Box>
+          </Box>
+
+          {/* Error Alert */}
+          {error && (
+            <Box
+              sx={{
+                mb: 3,
+                p: 2.5,
+                borderRadius: 1.5,
+                backgroundColor: "#fee",
+                border: "1px solid #fcc",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "#c33",
+                  fontSize: 14,
+                  fontWeight: 500,
+                }}
+              >
+                {error}
+              </Typography>
+            </Box>
+          )}
+
+          {/* Stats and Items Per Page */}
+          {!loading && totalItems > 0 && (
+            <Box
+              sx={{
+                mb: 2.5,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+              }}
+            >
               <Typography
                 sx={{
                   fontSize: 14,
@@ -355,82 +342,63 @@ export default function MyShopsPage() {
                   color: theme.palette.text.secondary,
                 }}
               >
-                Items per page:
+                {hasSearch && (
+                  <Box
+                    component="span"
+                    sx={{ fontWeight: 600, color: theme.palette.text.primary }}
+                  >
+                    Search results:{" "}
+                  </Box>
+                )}
+                Showing {(page - 1) * itemsPerPage + 1} -{" "}
+                {Math.min(page * itemsPerPage, totalItems)} of {totalItems}{" "}
+                {totalItems === 1 ? "shop" : "shops"} • {totalProducts}{" "}
+                {totalProducts === 1 ? "product" : "products"}
               </Typography>
-              <FormControl size="small">
-                <Select
-                  value={itemsPerPage}
-                  onChange={handleItemsPerPageChange}
+
+              {/* Items Per Page Selector */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                <Typography
                   sx={{
                     fontSize: 14,
-                    height: 36,
-                    backgroundColor: theme.palette.background.paper,
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: theme.palette.gray[200],
-                    },
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: theme.palette.gray[300],
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: theme.palette.secondary.main,
-                    },
+                    fontWeight: 500,
+                    color: theme.palette.text.secondary,
                   }}
                 >
-                  <MenuItem value={8}>8</MenuItem>
-                  <MenuItem value={16}>16</MenuItem>
-                  <MenuItem value={24}>24</MenuItem>
-                  <MenuItem value={32}>32</MenuItem>
-                  <MenuItem value={48}>48</MenuItem>
-                </Select>
-              </FormControl>
+                  Items per page:
+                </Typography>
+                <FormControl size="small">
+                  <Select
+                    value={itemsPerPage}
+                    onChange={handleItemsPerPageChange}
+                    sx={{
+                      fontSize: 14,
+                      height: 36,
+                      backgroundColor: theme.palette.background.paper,
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: theme.palette.gray[200],
+                      },
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: theme.palette.gray[300],
+                      },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: theme.palette.secondary.main,
+                      },
+                    }}
+                  >
+                    <MenuItem value={8}>8</MenuItem>
+                    <MenuItem value={16}>16</MenuItem>
+                    <MenuItem value={24}>24</MenuItem>
+                    <MenuItem value={32}>32</MenuItem>
+                    <MenuItem value={48}>48</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
             </Box>
-          </Box>
-        )}
+          )}
 
-        {/* Loading State - Show Skeleton Cards */}
-        {loading && (
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "repeat(1, 1fr)",
-                sm: "repeat(2, 1fr)",
-                md: "repeat(3, 1fr)",
-                lg: "repeat(4, 1fr)",
-              },
-              gap: 2.5,
-              mb: 4,
-            }}
-          >
-            {[...Array(itemsPerPage)].map((_, index) => (
-              <ProductCardSkeleton key={index} theme={theme} />
-            ))}
-          </Box>
-        )}
-
-        {/* No Shops - Empty State (base, no search) */}
-        {!loading && totalItems === 0 && !hasSearch && (
-          <NoResults
-            title="No shops yet"
-            subtitle="Create your first shop to start managing products and grow your business."
-            actionLabel="Create Shop"
-            onActionPress={() => navigate("/shops/new")}
-          />
-        )}
-
-        {/* No Search Results */}
-        {!loading && totalItems === 0 && hasSearch && (
-          <NoResults
-            title="No shops found"
-            subtitle={`No results for "${debouncedSearchQuery}". Try adjusting your search terms.`}
-            actionLabel="Clear Search"
-            onActionPress={handleSearchClear}
-          />
-        )}
-
-        {/* Shop Grid */}
-        {!loading && shops.length > 0 && (
-          <>
+          {/* Loading State - Show Skeleton Cards */}
+          {loading && (
             <Box
               sx={{
                 display: "grid",
@@ -444,55 +412,98 @@ export default function MyShopsPage() {
                 mb: 4,
               }}
             >
-              {shops.map((shop) => (
-                <ShopCard
-                  key={shop._id}
-                  shop={shop}
-                  onClick={() => handleShopPress(shop)}
-                  theme={theme}
-                />
+              {[...Array(itemsPerPage)].map((_, index) => (
+                <ProductCardSkeleton key={index} theme={theme} />
               ))}
             </Box>
+          )}
 
-            {/* Pagination */}
-            {totalPages > 1 && (
+          {/* No Shops - Empty State (base, no search) */}
+          {!loading && totalItems === 0 && !hasSearch && (
+            <NoResults
+              title="No shops yet"
+              subtitle="Create your first shop to start managing products and grow your business."
+              actionLabel="Create Shop"
+              onActionPress={() => navigate("/shops/new")}
+            />
+          )}
+
+          {/* No Search Results */}
+          {!loading && totalItems === 0 && hasSearch && (
+            <NoResults
+              title="No shops found"
+              subtitle={`No results for "${debouncedSearchQuery}". Try adjusting your search terms.`}
+              actionLabel="Clear Search"
+              onActionPress={handleSearchClear}
+            />
+          )}
+
+          {/* Shop Grid */}
+          {!loading && shops.length > 0 && (
+            <>
               <Box
                 sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  mt: 4,
-                  mb: 2,
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "repeat(1, 1fr)",
+                    sm: "repeat(2, 1fr)",
+                    md: "repeat(3, 1fr)",
+                    lg: "repeat(4, 1fr)",
+                  },
+                  gap: 2.5,
+                  mb: 4,
                 }}
               >
-                <Pagination
-                  count={totalPages}
-                  page={page}
-                  onChange={handlePageChange}
-                  color="primary"
-                  size="large"
-                  showFirstButton
-                  showLastButton
-                  sx={{
-                    "& .MuiPaginationItem-root": {
-                      fontSize: 14,
-                      fontWeight: 500,
-                    },
-                    "& .MuiPaginationItem-root.Mui-selected": {
-                      backgroundColor: theme.palette.secondary.main,
-                      color: "#fff",
-                      "&:hover": {
-                        backgroundColor: theme.palette.secondary.dark,
-                      },
-                    },
-                  }}
-                />
+                {shops.map((shop) => (
+                  <ShopCard
+                    key={shop._id}
+                    shop={shop}
+                    onClick={() => handleShopPress(shop)}
+                    theme={theme}
+                  />
+                ))}
               </Box>
-            )}
-          </>
-        )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    mt: 4,
+                    mb: 2,
+                  }}
+                >
+                  <Pagination
+                    count={totalPages}
+                    page={page}
+                    onChange={handlePageChange}
+                    color="primary"
+                    size="large"
+                    showFirstButton
+                    showLastButton
+                    sx={{
+                      "& .MuiPaginationItem-root": {
+                        fontSize: 14,
+                        fontWeight: 500,
+                      },
+                      "& .MuiPaginationItem-root.Mui-selected": {
+                        backgroundColor: theme.palette.secondary.main,
+                        color: "#fff",
+                        "&:hover": {
+                          backgroundColor: theme.palette.secondary.dark,
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+              )}
+            </>
+          )}
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 }
 

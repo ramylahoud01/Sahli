@@ -9,10 +9,18 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Chip,
+  Container,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { OpenInNew as ExternalIcon } from "@mui/icons-material";
-import KeyboardArrowDownOutlinedIcon from "@mui/icons-material/KeyboardArrowDownOutlined";
+import {
+  OpenInNew as ExternalIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  Store as StoreIcon,
+  Inventory2Outlined as InventoryIcon,
+  TuneOutlined as FilterIcon,
+  GridViewOutlined as GridIcon,
+} from "@mui/icons-material";
 
 import { getShopById, getShopSubcategories } from "../../api/shops";
 import { listPublicShopProducts } from "../../api/products";
@@ -22,7 +30,7 @@ import PublicShopHeader from "./PublicShopHeader";
 import PublicProductCard from "./PublicProductCard";
 import CardLoading from "../../components/loading/CardLoading";
 
-// debounce for search
+// Debounce hook
 function useDebounce(value, delay = 400) {
   const [debouncedValue, setDebouncedValue] = React.useState(value);
 
@@ -34,16 +42,13 @@ function useDebounce(value, delay = 400) {
   return debouncedValue;
 }
 
-// 🔧 Helper: convert hex or rgb/rgba string to rgba with custom alpha
+// Helper: convert color to rgba with custom alpha
 function toAlphaColor(color, alpha = 0.6) {
   if (!color || typeof color !== "string") return color;
   const c = color.trim();
 
-  // HEX: #rgb, #rgba, #rrggbb, #rrggbbaa
   if (c.startsWith("#")) {
     let hex = c.slice(1);
-
-    // #rgb or #rgba → expand to #rrggbb and ignore existing a
     if (hex.length === 3 || hex.length === 4) {
       hex = hex
         .slice(0, 3)
@@ -51,8 +56,6 @@ function toAlphaColor(color, alpha = 0.6) {
         .map((ch) => ch + ch)
         .join("");
     }
-
-    // #rrggbb or #rrggbbaa → use first 6 chars for rgb
     if (hex.length === 6 || hex.length === 8) {
       const r = parseInt(hex.slice(0, 2), 16);
       const g = parseInt(hex.slice(2, 4), 16);
@@ -60,33 +63,24 @@ function toAlphaColor(color, alpha = 0.6) {
       if ([r, g, b].some((v) => Number.isNaN(v))) return color;
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
-
-    // Fallback if weird hex
     return color;
   }
 
-  // rgb(...) or rgba(...)
   if (c.startsWith("rgb")) {
     const match = c.match(/rgba?\s*\(([^)]+)\)/i);
     if (!match) return color;
-
     const parts = match[1]
       .split(",")
       .map((p) => p.trim())
       .filter(Boolean);
-
     if (parts.length < 3) return color;
-
     const r = parseInt(parts[0], 10);
     const g = parseInt(parts[1], 10);
     const b = parseInt(parts[2], 10);
-
     if ([r, g, b].some((v) => Number.isNaN(v))) return color;
-
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
-  // Anything else (CSS variable, named color, etc.) → keep as is
   return color;
 }
 
@@ -97,11 +91,10 @@ export default function PublicShopPage() {
   const [shop, setShop] = React.useState(null);
   const [products, setProducts] = React.useState([]);
 
-  // ✅ Separate loading states
-  const [shopLoading, setShopLoading] = React.useState(true); // full page first load
-  const [productsLoading, setProductsLoading] = React.useState(false); // cards skeleton after first load
+  const [shopLoading, setShopLoading] = React.useState(true);
+  const [productsLoading, setProductsLoading] = React.useState(false);
   const [initialProductsLoaded, setInitialProductsLoaded] =
-    React.useState(false); // first products load done
+    React.useState(false);
 
   const [error, setError] = React.useState("");
   const [notFound, setNotFound] = React.useState(false);
@@ -109,7 +102,6 @@ export default function PublicShopPage() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [focused, setFocused] = React.useState(false);
 
-  // "all" or a real subcategoryId
   const [subcategoryFilter, setSubcategoryFilter] = React.useState("all");
   const [subcategories, setSubcategories] = React.useState([]);
 
@@ -119,10 +111,9 @@ export default function PublicShopPage() {
 
   const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
-  // Load shop (initial)
+  // Load shop
   React.useEffect(() => {
     if (!shopId) return;
-
     let cancelled = false;
 
     async function loadShop() {
@@ -161,15 +152,13 @@ export default function PublicShopPage() {
     };
   }, [shopId]);
 
-  // Load products (every time page / filters change)
+  // Load products
   React.useEffect(() => {
     if (!shopId) return;
-
     let cancelled = false;
 
     async function loadProducts() {
       try {
-        // ✅ Only show cards skeleton AFTER initial products have been loaded once
         if (initialProductsLoaded) {
           setProductsLoading(true);
         }
@@ -189,21 +178,18 @@ export default function PublicShopPage() {
           : Array.isArray(result)
           ? result
           : [];
-
         const total =
           typeof result?.total === "number" ? result.total : items.length;
 
         setProducts(items);
         setTotalProducts(total);
 
-        // ✅ Mark that initial products load is done
         if (!initialProductsLoaded) {
           setInitialProductsLoaded(true);
         }
       } catch (e) {
         if (cancelled) return;
         console.error("[PublicShopPage] products fetch error:", e);
-        // Keep previous products on error
       } finally {
         if (!cancelled) setProductsLoading(false);
       }
@@ -213,13 +199,18 @@ export default function PublicShopPage() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shopId, page, itemsPerPage, debouncedSearchQuery, subcategoryFilter]);
+  }, [
+    shopId,
+    page,
+    itemsPerPage,
+    debouncedSearchQuery,
+    subcategoryFilter,
+    initialProductsLoaded,
+  ]);
 
   // Load subcategories
   React.useEffect(() => {
     if (!shopId) return;
-
     let cancelled = false;
 
     async function loadSubcategories() {
@@ -243,7 +234,6 @@ export default function PublicShopPage() {
     Math.ceil(totalProducts === 0 ? 1 : totalProducts / itemsPerPage)
   );
   const currentPage = Math.min(page, totalPages);
-
   const fromItem =
     totalProducts === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const toItem =
@@ -271,11 +261,12 @@ export default function PublicShopPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // ✅ Full-page loading ONLY for first load (shop + first products)
+  // Full-page loading
   if ((shopLoading || !initialProductsLoaded) && !notFound && !error) {
     return <PublicShopPageLoading />;
   }
-  // ⚠️ These two branches run before shopThemeColor exists, so we don't pass it here
+
+  // Error state
   if (error && !notFound) {
     return (
       <Box
@@ -284,8 +275,8 @@ export default function PublicShopPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          bgcolor: theme.palette.background.default,
-          px: theme.spacing(2),
+          bgcolor: theme.palette.grey[50],
+          px: 2,
         }}
       >
         <NoResults
@@ -298,6 +289,7 @@ export default function PublicShopPage() {
     );
   }
 
+  // Not found state
   if (notFound || !shop) {
     return (
       <Box
@@ -306,8 +298,8 @@ export default function PublicShopPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          bgcolor: theme.palette.background.default,
-          px: theme.spacing(2),
+          bgcolor: theme.palette.grey[50],
+          px: 2,
         }}
       >
         <NoResults
@@ -325,19 +317,14 @@ export default function PublicShopPage() {
   const locationText = shop.address;
   const shopThemeColor = shop.themeColor;
 
-  // 🎨 Background = theme color with alpha 0.6 if possible
-  const statsBgColor = shopThemeColor
-    ? toAlphaColor(shopThemeColor, 0.6)
-    : theme.palette.gray[50];
-
-  const accentColor = shopThemeColor || theme.palette.secondary.main;
-  const accentSoftBg = toAlphaColor(accentColor, 0.35);
+  const accentColor = shopThemeColor || theme.palette.primary.main;
+  const accentSoftBg = toAlphaColor(accentColor, 0.08);
+  const accentHoverBg = toAlphaColor(accentColor, 0.12);
 
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: theme.palette.background.default,
         display: "flex",
         flexDirection: "column",
       }}
@@ -356,156 +343,172 @@ export default function PublicShopPage() {
         shopThemeColor={shopThemeColor}
       />
 
-      {/* 🧾 SHOP SUMMARY CARD (name + description) – FULL ROW WIDTH */}
+      {/* HERO BANNER CARD */}
       {(shop.name || shop.description) && (
-        <Box
-          sx={{
-            maxWidth: 1400,
-            mx: "auto",
-            px: { xs: 2.5, sm: 3.5, md: 4 },
-            mt: 2,
-          }}
+        <Container
+          maxWidth="xl"
+          sx={{ mt: { xs: 2, md: 3 }, px: { xs: 2, sm: 2.5, md: 3 } }} // smaller margin + padding
         >
           <Box
             sx={{
-              width: "100%",
-              borderRadius: 2,
+              position: "relative",
+              borderRadius: "16px", // smaller
               bgcolor: "#FFFFFF",
-              boxShadow: "0 8px 24px rgba(15, 23, 42, 0.04)",
-              border: `1px solid ${theme.palette.gray[200]}`,
-              p: 2.5,
-              display: "flex",
-              gap: 2,
+              boxShadow: "0 3px 14px rgba(15, 23, 42, 0.05)", // softer shadow
+              border: `1px solid ${theme.palette.grey[300]}`,
+              p: { xs: 2.5, sm: 3, md: 3.5 }, // reduced padding
+              overflow: "hidden",
+              transition: "all 0.25s ease",
+              "&:hover": {
+                boxShadow: "0 6px 20px rgba(15, 23, 42, 0.08)",
+                transform: "translateY(-1px)",
+              },
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                top: 0,
+                left: 0,
+                bottom: 0,
+                width: "4px", // smaller accent bar
+                background: `linear-gradient(180deg, ${accentColor}, ${toAlphaColor(
+                  accentColor,
+                  0.6
+                )})`,
+                borderRadius: "16px 0 0 16px",
+              },
             }}
           >
-            {/* Accent bar */}
             <Box
               sx={{
-                width: 5,
-                borderRadius: 999,
-                background: `linear-gradient(180deg, ${accentColor}, ${accentSoftBg})`,
+                display: "flex",
+                alignItems: "flex-start",
               }}
-            />
+            >
+              {/* Text */}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                {shop.name && (
+                  <Typography
+                    sx={{
+                      fontSize: { xs: 18, sm: 22, md: 24 }, // smaller title
+                      fontWeight: 700,
+                      color: theme.palette.text.primary,
+                      mb: shop.description ? 1 : 0,
+                      lineHeight: 1.25,
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    {shop.name}
+                  </Typography>
+                )}
 
-            {/* Text */}
-            <Box sx={{ flex: 1 }}>
-              {shop.name && (
-                <Typography
-                  sx={{
-                    fontSize: 18,
-                    fontWeight: 600,
-                    color: theme.palette.text.primary,
-                    mb: shop.description ? 0.5 : 0,
-                  }}
-                >
-                  {shop.name}
-                </Typography>
-              )}
-
-              {shop.description && (
-                <Typography
-                  sx={{
-                    fontSize: 13,
-                    lineHeight: 1.6,
-                    color: theme.palette.text.secondary,
-                    maxWidth: "100%",
-                  }}
-                >
-                  {shop.description}
-                </Typography>
-              )}
+                {shop.description && (
+                  <Typography
+                    sx={{
+                      fontSize: { xs: 13, sm: 14 }, // smaller desc
+                      lineHeight: 1.6,
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    {shop.description}
+                  </Typography>
+                )}
+              </Box>
             </Box>
           </Box>
-        </Box>
+        </Container>
       )}
 
       {/* MAIN CONTENT */}
       <Box sx={{ flex: 1 }}>
-        {/* FILTER / STATS STRIP */}
-        <Box
-          sx={{
-            bgcolor: statsBgColor,
-            mt: 2,
-            py: 2.2,
-          }}
+        {/* STATS & FILTER BAR */}
+        <Container
+          maxWidth="xl"
+          sx={{ mt: { xs: 2.5, md: 4 }, px: { xs: 2.5, sm: 3, md: 4 } }}
         >
           <Box
             sx={{
-              maxWidth: 1400,
-              mx: "auto",
-              px: { xs: 2.5, sm: 3.5, md: 4 },
               display: "flex",
-              flexWrap: "wrap",
-              gap: 1.5,
-              alignItems: "center",
+              flexDirection: { xs: "column", lg: "row" },
+              gap: 2.5,
+              alignItems: { xs: "stretch", lg: "center" },
               justifyContent: "space-between",
+              bgcolor: "#FFFFFF",
+              borderRadius: "18px",
+              p: { xs: 2.5, sm: 3 },
+              boxShadow: "0 4px 16px rgba(15, 23, 42, 0.05)",
+              border: `1px solid ${theme.palette.grey[200]}`,
+              transition: "box-shadow 0.2s ease",
+              "&:hover": {
+                boxShadow: "0 6px 24px rgba(15, 23, 42, 0.08)",
+              },
             }}
           >
-            {/* Stats pill */}
-            <Box
-              sx={{
-                px: 2,
-                py: 1,
-                borderRadius: 999,
-                bgcolor: "#FFFFFF",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  lineHeight: 1.3,
-                  fontWeight: 500,
-                  color: theme.palette.text.secondary,
-                }}
-              >
-                Showing{" "}
-                <Box
-                  component="span"
+            {/* Left: Stats with modern styling */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Box>
+                <Typography
                   sx={{
-                    fontWeight: 500,
-                    color: theme.palette.text.primary,
+                    fontSize: 11,
+                    color: theme.palette.text.secondary,
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    mb: 0.5,
                   }}
                 >
-                  {fromItem}-{toItem}
-                </Box>{" "}
-                of{" "}
-                <Box
-                  component="span"
+                  Product Catalog
+                </Typography>
+                <Typography
                   sx={{
-                    fontWeight: 500,
+                    fontSize: 14,
+                    fontWeight: 600,
                     color: theme.palette.text.primary,
+                    lineHeight: 1,
                   }}
                 >
-                  {totalProducts}
-                </Box>{" "}
-                {totalProducts === 1 ? "product" : "products"}
-              </Typography>
+                  {fromItem}-{toItem}{" "}
+                  <Box
+                    component="span"
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    of {totalProducts}
+                  </Box>
+                </Typography>
+              </Box>
             </Box>
 
-            {/* Controls: subcategory + items per page */}
+            {/* Right: Filters with premium styling */}
             <Box
               sx={{
                 display: "flex",
                 flexWrap: "wrap",
-                gap: 1,
+                gap: 2,
                 alignItems: "center",
               }}
             >
-              {/* Subcategory pill-select */}
+              {/* Subcategory filter */}
               <FormControl
                 size="small"
                 sx={{
-                  minWidth: 240,
+                  minWidth: { xs: "100%", sm: 220 },
                   "& .MuiOutlinedInput-root": {
-                    borderRadius: 999,
-                    height: 38,
-                    paddingRight: 1.5,
-                    paddingLeft: 1.5,
-                    backgroundColor: "#FFFFFF",
-                    border: `1.5px solid ${theme.palette.gray[300]}`,
-                    transition: "all 0.18s ease",
+                    borderRadius: "12px",
+                    height: 44,
+                    backgroundColor: theme.palette.grey[50],
+                    border: `1.5px solid ${theme.palette.grey[300]}`,
+                    transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                    "&:hover": {
+                      boxShadow: `0 0 0 3px ${toAlphaColor(accentColor, 0.05)}`,
+                    },
+                    "&.Mui-focused": {
+                      //   borderColor: accentColor,
+                      //   bgcolor: "#FFFFFF",
+                      //   boxShadow: `0 0 0 3px ${toAlphaColor(accentColor, 0.15)}`,
+                    },
                   },
                   "& .MuiOutlinedInput-notchedOutline": {
                     border: "none",
@@ -516,85 +519,70 @@ export default function PublicShopPage() {
                   value={subcategoryFilter}
                   onChange={(e) => handleSubcategoryChange(e.target.value)}
                   displayEmpty
-                  IconComponent={KeyboardArrowDownOutlinedIcon}
+                  IconComponent={KeyboardArrowDownIcon}
                   MenuProps={{
                     PaperProps: {
                       sx: {
-                        borderRadius: 1.25,
-                        boxShadow: "0 10px 30px rgba(15, 23, 42, 0.18)",
+                        borderRadius: "14px",
+                        boxShadow: "0 12px 40px rgba(15, 23, 42, 0.15)",
+                        mt: 1,
+                        border: `1px solid ${theme.palette.grey[200]}`,
                         "& .MuiMenuItem-root": {
                           fontSize: 14,
-                          minHeight: 36,
-                          py: 0.75,
-                          px: 1.5,
+                          minHeight: 42,
+                          py: 1.25,
+                          px: 2,
+                          borderRadius: "10px",
+                          mx: 1,
+                          my: 0.25,
+                          transition: "all 0.15s ease",
+                          "&:hover": {
+                            bgcolor: accentSoftBg,
+                            color: accentColor,
+                          },
+                          "&.Mui-selected": {
+                            bgcolor: accentSoftBg,
+                            color: accentColor,
+                            fontWeight: 600,
+                            "&:hover": {
+                              bgcolor: accentHoverBg,
+                            },
+                          },
                         },
                       },
                     },
                   }}
                   sx={{
-                    "& .MuiSelect-select": {
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      padding: 0,
-                    },
+                    fontSize: 14,
+                    fontWeight: 500,
                     "& .MuiSelect-icon": {
-                      right: 8,
                       color: theme.palette.text.secondary,
+                      transition: "transform 0.2s ease",
                     },
-                  }}
-                  renderValue={(selected) => {
-                    const label = "Subcategory";
-                    const valueLabel =
-                      selected === "all"
-                        ? "All subcategories"
-                        : subcategories.find((s) => s.id === selected)?.name ||
-                          "Select";
-
-                    return (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          width: "100%",
-                          gap: 1,
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            fontSize: 13,
-                            fontWeight: 500,
-                            color: theme.palette.text.secondary,
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {label}
-                        </Typography>
-                        <Box
-                          sx={{
-                            width: "1px",
-                            height: "16px",
-                            bgcolor: theme.palette.gray[300],
-                            mx: 0.5,
-                          }}
-                        />
-                        <Typography
-                          sx={{
-                            fontSize: 13,
-                            fontWeight: 500,
-                            color: theme.palette.text.primary,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {valueLabel}
-                        </Typography>
-                      </Box>
-                    );
+                    "&.Mui-expanded .MuiSelect-icon": {
+                      transform: "rotate(180deg)",
+                    },
                   }}
                 >
-                  <MenuItem value="all">All subcategories</MenuItem>
+                  <MenuItem value="all">
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                    >
+                      <Chip
+                        label="All"
+                        size="small"
+                        sx={{
+                          height: 22,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          bgcolor: accentSoftBg,
+                          color: accentColor,
+                          border: `1px solid ${toAlphaColor(accentColor, 0.2)}`,
+                        }}
+                      />
+                      All Categories
+                    </Box>
+                  </MenuItem>
                   {subcategories.map((sub) => (
                     <MenuItem key={sub.id} value={sub.id}>
                       {sub.name}
@@ -603,19 +591,25 @@ export default function PublicShopPage() {
                 </Select>
               </FormControl>
 
-              {/* Items per page pill-select */}
+              {/* Items per page */}
               <FormControl
                 size="small"
                 sx={{
-                  minWidth: 190,
+                  minWidth: { xs: "100%", sm: 140 },
                   "& .MuiOutlinedInput-root": {
-                    borderRadius: 999,
-                    height: 38,
-                    paddingRight: 1.5,
-                    paddingLeft: 1.5,
-                    backgroundColor: "#FFFFFF",
-                    border: `1.5px solid ${theme.palette.gray[300]}`,
-                    transition: "all 0.18s ease",
+                    borderRadius: "12px",
+                    height: 44,
+                    backgroundColor: theme.palette.grey[50],
+                    border: `1.5px solid ${theme.palette.grey[300]}`,
+                    transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                    "&:hover": {
+                      boxShadow: `0 0 0 3px ${toAlphaColor(accentColor, 0.05)}`,
+                    },
+                    "&.Mui-focused": {
+                      //   borderColor: accentColor,
+                      //   bgcolor: "#FFFFFF",
+                      //   boxShadow: `0 0 0 3px ${toAlphaColor(accentColor, 0.15)}`,
+                    },
                   },
                   "& .MuiOutlinedInput-notchedOutline": {
                     border: "none",
@@ -625,216 +619,205 @@ export default function PublicShopPage() {
                 <Select
                   value={itemsPerPage}
                   onChange={handleItemsPerPageChange}
-                  IconComponent={KeyboardArrowDownOutlinedIcon}
+                  IconComponent={KeyboardArrowDownIcon}
                   MenuProps={{
                     PaperProps: {
                       sx: {
-                        borderRadius: 1.25,
-                        boxShadow: "0 10px 30px rgba(15, 23, 42, 0.18)",
+                        borderRadius: "14px",
+                        boxShadow: "0 12px 40px rgba(15, 23, 42, 0.15)",
+                        mt: 1,
+                        border: `1px solid ${theme.palette.grey[200]}`,
                         "& .MuiMenuItem-root": {
                           fontSize: 14,
-                          minHeight: 36,
-                          py: 0.75,
-                          px: 1.5,
+                          minHeight: 42,
+                          py: 1.25,
+                          px: 2,
+                          borderRadius: "10px",
+                          mx: 1,
+                          my: 0.25,
+                          transition: "all 0.15s ease",
+                          "&:hover": {
+                            bgcolor: accentSoftBg,
+                            color: accentColor,
+                          },
+                          "&.Mui-selected": {
+                            bgcolor: accentSoftBg,
+                            color: accentColor,
+                            fontWeight: 600,
+                            "&:hover": {
+                              bgcolor: accentHoverBg,
+                            },
+                          },
                         },
                       },
                     },
                   }}
                   sx={{
-                    "& .MuiSelect-select": {
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      padding: 0,
-                    },
+                    fontSize: 14,
+                    fontWeight: 500,
                     "& .MuiSelect-icon": {
-                      right: 8,
                       color: theme.palette.text.secondary,
+                      transition: "transform 0.2s ease",
+                    },
+                    "&.Mui-expanded .MuiSelect-icon": {
+                      transform: "rotate(180deg)",
                     },
                   }}
-                  renderValue={(selected) => (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        width: "100%",
-                        gap: 1,
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: 13,
-                          fontWeight: 500,
-                          color: theme.palette.text.secondary,
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        Items per page
-                      </Typography>
-                      <Box
-                        sx={{
-                          width: "1px",
-                          height: "16px",
-                          bgcolor: theme.palette.gray[300],
-                          mx: 0.5,
-                        }}
-                      />
-                      <Typography
-                        sx={{
-                          fontSize: 13,
-                          fontWeight: 500,
-                          color: theme.palette.text.primary,
-                        }}
-                      >
-                        {selected}
-                      </Typography>
-                    </Box>
-                  )}
                 >
-                  <MenuItem value={8}>8</MenuItem>
-                  <MenuItem value={16}>16</MenuItem>
-                  <MenuItem value={24}>24</MenuItem>
-                  <MenuItem value={32}>32</MenuItem>
-                  <MenuItem value={48}>48</MenuItem>
+                  <MenuItem value={8}>8 per page</MenuItem>
+                  <MenuItem value={16}>16 per page</MenuItem>
+                  <MenuItem value={24}>24 per page</MenuItem>
+                  <MenuItem value={32}>32 per page</MenuItem>
+                  <MenuItem value={48}>48 per page</MenuItem>
                 </Select>
               </FormControl>
             </Box>
           </Box>
-        </Box>
+        </Container>
 
         {/* PRODUCTS SECTION */}
-        <Box
-          sx={{
-            py: { xs: theme.spacing(5), md: theme.spacing(6) },
-          }}
+        <Container
+          maxWidth="xl"
+          sx={{ mt: 4, mb: { xs: 5, md: 6 }, px: { xs: 2.5, sm: 3, md: 4 } }}
         >
-          <Box
-            sx={{
-              maxWidth: 1400,
-              mx: "auto",
-              px: { xs: 2.5, sm: 3.5, md: 4 },
-            }}
-          >
-            {productsLoading ? (
-              // ✅ Cards-only skeleton loading (only after first load)
-              <CardLoading items={itemsPerPage} />
-            ) : totalProducts === 0 ? (
-              <NoResults
-                title={
-                  debouncedSearchQuery.trim() || subcategoryFilter !== "all"
-                    ? "No products match your filters"
-                    : "No products available yet"
-                }
-                subtitle={
-                  debouncedSearchQuery.trim() || subcategoryFilter !== "all"
-                    ? "Try clearing your search or selecting another subcategory."
-                    : "This shop hasn't listed any products yet. Please check back later."
-                }
-                actionLabel={
-                  debouncedSearchQuery.trim() || subcategoryFilter !== "all"
-                    ? "Clear filters"
-                    : undefined
-                }
-                onActionPress={
-                  debouncedSearchQuery.trim() || subcategoryFilter !== "all"
-                    ? () => {
-                        setSearchQuery("");
-                        setSubcategoryFilter("all");
-                        setPage(1);
-                      }
-                    : undefined
-                }
-                shopThemeColor={shopThemeColor}
-              />
-            ) : (
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: {
-                    xs: "repeat(1, 1fr)",
-                    sm: "repeat(2, 1fr)",
-                    md: "repeat(3, 1fr)",
-                    lg: "repeat(4, 1fr)",
-                  },
-                  gap: 2.5,
-                }}
-              >
-                {products.map((product) => (
-                  <PublicProductCard
-                    key={product._id}
-                    product={product}
-                    theme={theme}
-                    accentColor={shopThemeColor}
-                  />
-                ))}
-              </Box>
-            )}
-          </Box>
-        </Box>
+          {productsLoading ? (
+            <CardLoading items={itemsPerPage} />
+          ) : totalProducts === 0 ? (
+            <NoResults
+              title={
+                debouncedSearchQuery.trim() || subcategoryFilter !== "all"
+                  ? "No products match your filters"
+                  : "No products available yet"
+              }
+              subtitle={
+                debouncedSearchQuery.trim() || subcategoryFilter !== "all"
+                  ? "Try clearing your search or selecting another subcategory."
+                  : "This shop hasn't listed any products yet. Please check back later."
+              }
+              actionLabel={
+                debouncedSearchQuery.trim() || subcategoryFilter !== "all"
+                  ? "Clear filters"
+                  : undefined
+              }
+              onActionPress={
+                debouncedSearchQuery.trim() || subcategoryFilter !== "all"
+                  ? () => {
+                      setSearchQuery("");
+                      setSubcategoryFilter("all");
+                      setPage(1);
+                    }
+                  : undefined
+              }
+              shopThemeColor={shopThemeColor}
+            />
+          ) : (
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "repeat(1, 1fr)",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(3, 1fr)",
+                  lg: "repeat(4, 1fr)",
+                },
+                gap: { xs: 2.5, md: 3 },
+              }}
+            >
+              {products.map((product) => (
+                <PublicProductCard
+                  key={product._id}
+                  product={product}
+                  theme={theme}
+                  accentColor={shopThemeColor}
+                />
+              ))}
+            </Box>
+          )}
+        </Container>
       </Box>
 
-      {/* FOOTER */}
+      {/* PREMIUM FOOTER */}
       <Box
         sx={{
-          borderTop: `1px solid ${theme.palette.gray[200]}`,
+          borderTop: `1px solid ${theme.palette.grey[200]}`,
           mt: "auto",
-          py: 3,
-          bgcolor: theme.palette.background.paper,
+          py: { xs: 4, md: 5 },
+          bgcolor: "#FFFFFF",
         }}
       >
-        <Box
-          sx={{
-            maxWidth: 1400,
-            mx: "auto",
-            px: { xs: 2.5, sm: 3.5, md: 4 },
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 1.5,
-          }}
-        >
-          {totalPages > 1 && totalProducts > 0 && (
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={handlePageChange}
-              color="primary"
-              size="large"
-              showFirstButton
-              showLastButton
-              sx={{
-                "& .MuiPaginationItem-root": {
-                  fontSize: 14,
-                  fontWeight: 500,
-                },
-                "& .MuiPaginationItem-root.Mui-selected": {
-                  backgroundColor: theme.palette.secondary.main,
-                  color: "#fff",
-                  "&:hover": {
-                    backgroundColor: theme.palette.secondary.dark,
-                  },
-                },
-              }}
-            />
-          )}
-
-          <Button
-            endIcon={<ExternalIcon />}
-            onClick={() => navigate("/")}
+        <Container maxWidth="xl" sx={{ px: { xs: 2.5, sm: 3, md: 4 } }}>
+          <Box
             sx={{
-              textTransform: "none",
-              fontSize: 12,
-              color: theme.palette.text.secondary,
-              fontFamily: theme.typography.fontFamily,
-              "&:hover": {
-                color: theme.palette.primary.main,
-                bgcolor: "transparent",
-              },
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 3.5,
             }}
           >
-            Powered by Sahle – Explore more shops
-          </Button>
-        </Box>
+            {totalPages > 1 && totalProducts > 0 && (
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                size="large"
+                showFirstButton
+                showLastButton
+                sx={{
+                  "& .MuiPaginationItem-root": {
+                    fontSize: 14,
+                    fontWeight: 500,
+                    borderRadius: "12px",
+                    minWidth: 42,
+                    height: 42,
+                    border: `1.5px solid ${theme.palette.grey[300]}`,
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      borderColor: accentColor,
+                      bgcolor: accentSoftBg,
+                      color: accentColor,
+                    },
+                  },
+                  "& .MuiPaginationItem-root.Mui-selected": {
+                    backgroundColor: accentColor,
+                    color: "#fff",
+                    fontWeight: 700,
+                    border: `1.5px solid ${accentColor}`,
+                    boxShadow: `0 4px 12px ${toAlphaColor(accentColor, 0.3)}`,
+                    "&:hover": {
+                      backgroundColor: accentColor,
+                      opacity: 0.9,
+                    },
+                  },
+                }}
+              />
+            )}
+
+            <Button
+              endIcon={<ExternalIcon sx={{ fontSize: 16 }} />}
+              onClick={() => navigate("/")}
+              sx={{
+                textTransform: "none",
+                fontSize: 13,
+                fontWeight: 600,
+                color: theme.palette.text.secondary,
+                px: 3,
+                py: 1.25,
+                borderRadius: "12px",
+                border: `1.5px solid ${theme.palette.grey[300]}`,
+                transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                "&:hover": {
+                  color: accentColor,
+                  bgcolor: accentSoftBg,
+                  //   borderColor: accentColor,
+                  //   boxShadow: `0 0 0 3px ${toAlphaColor(accentColor, 0.1)}`,
+                  transform: "translateY(-2px)",
+                },
+              }}
+            >
+              Powered by Sahli – Explore more shops
+            </Button>
+          </Box>
+        </Container>
       </Box>
     </Box>
   );

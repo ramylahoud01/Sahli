@@ -40,6 +40,7 @@ import AppButton from "../../components/UI/AppButton";
 import { createProduct, uploadProductImage } from "../../api/products";
 import { listCategories } from "../../api/categorie";
 import { getAccessToken } from "../../api/auth";
+import AnimatedBackground from "../../Background/AnimatedBackground";
 
 const MAX_IMAGES = 6;
 const DEFAULT_IMAGE_NOTE =
@@ -214,8 +215,6 @@ export default function CreateProductPage() {
         errs[f.key] = `${f.label} is required`;
       }
     }
-    if (Object.keys(errs).length) {
-    }
     return errs;
   };
 
@@ -289,7 +288,7 @@ export default function CreateProductPage() {
     setDynamicErrors({});
     setUploadProgress(0);
 
-    // 1) Category still blocks first (we can't even know dynamic fields without it)
+    // 1) Category still blocks first
     if (!categoryId || !subcategoryId) {
       setFieldErrors({
         category: "Category & subcategory are required",
@@ -395,7 +394,6 @@ export default function CreateProductPage() {
           borderWidth: 1.5,
         },
         "&.Mui-error fieldset": {
-          // keep neutral border when error (no red frame)
           borderColor: theme.palette.gray[200],
           borderWidth: 0.5,
         },
@@ -431,9 +429,16 @@ export default function CreateProductPage() {
 
   return (
     <>
+      <AnimatedBackground
+        primaryColor={theme.palette.primary.main}
+        secondaryColor={theme.palette.secondary.main}
+      />
+
       <Box
         sx={{
-          backgroundColor: theme.palette.background.default,
+          position: "relative",
+          zIndex: 1,
+          backgroundColor: "transparent",
           minHeight: "100vh",
           py: { xs: 3, sm: 4 },
         }}

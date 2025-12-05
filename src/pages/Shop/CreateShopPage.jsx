@@ -33,6 +33,7 @@ import {
 import AppButton from "../../components/UI/AppButton";
 import { createShop, uploadShopImage } from "../../api/shops";
 import { getAccessToken } from "../../api/auth";
+import AnimatedBackground from "../../Background/AnimatedBackground";
 
 // Lebanon location data
 const LEBANON_DISTRICTS = [
@@ -325,7 +326,7 @@ export default function CreateShopPage() {
     }
   };
 
-  // Use current location (web) – same style as the app: "Badaro, Beirut, Lebanon"
+  // Use current location (web)
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
       setFieldErrors((prev) => ({
@@ -376,7 +377,6 @@ export default function CreateShopPage() {
             town = `Other in ${district}`;
           }
 
-          // Final address like mobile: "Badaro, Beirut, Lebanon"
           setAddress(`${town}, ${district}, Lebanon`);
           setFieldErrors((prev) => ({ ...prev, address: undefined }));
           setLocationModalOpen(false);
@@ -545,682 +545,701 @@ export default function CreateShopPage() {
   };
 
   return (
-    <Box
-      sx={{
-        backgroundColor: theme.palette.background.default,
-        minHeight: "100vh",
-        py: { xs: 3, sm: 4 },
-      }}
-    >
+    <>
+      <AnimatedBackground
+        primaryColor={theme.palette.primary.main}
+        secondaryColor={theme.palette.secondary.main}
+      />
+
       <Box
         sx={{
-          maxWidth: 600,
-          mx: "auto",
-          px: { xs: 2.5, sm: 3.5 },
+          position: "relative",
+          zIndex: 1,
+          backgroundColor: "transparent",
+          minHeight: "100vh",
+          py: { xs: 3, sm: 4 },
         }}
       >
-        {/* Header */}
-        <Box sx={{ mb: 3, textAlign: "center" }}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 800,
-              fontSize: { xs: "1.7rem", md: "2.3rem" },
-              color: theme.palette.text.primary,
-              mb: 0.75,
-            }}
-          >
-            Create New{" "}
-            <Box component="span" sx={{ color: theme.palette.secondary.main }}>
-              Shop
-            </Box>
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 15,
-              color: theme.palette.text.secondary,
-              opacity: 0.9,
-            }}
-          >
-            Set up your shop profile
-          </Typography>
-        </Box>
-
-        {/* Form Card */}
         <Box
-          component="form"
-          onSubmit={handleSubmit}
           sx={{
-            backgroundColor: theme.palette.background.paper,
-            borderRadius: 2,
-            border: `1px solid ${theme.palette.gray[200]}`,
-            p: { xs: 2.5, sm: 3.5 },
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+            maxWidth: 600,
+            mx: "auto",
+            px: { xs: 2.5, sm: 3.5 },
           }}
         >
-          {/* General Error */}
-          {generalError && (
-            <Box
-              sx={{
-                mb: 2.5,
-                p: 2,
-                borderRadius: 1.5,
-                backgroundColor: "#fee",
-                border: "1px solid #fcc",
-              }}
-            >
-              <Typography sx={{ color: "#c33", fontSize: 14, fontWeight: 500 }}>
-                {generalError}
-              </Typography>
-            </Box>
-          )}
-
-          {/* Shop Name */}
-          <TextField
-            {...textFieldProps}
-            label="Shop name *"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setFieldErrors((prev) => ({ ...prev, name: undefined }));
-            }}
-            error={!!fieldErrors.name}
-            helperText={fieldErrors.name}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <StoreIcon sx={{ color: theme.palette.text.secondary }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          {/* Location Selector */}
-          <Box
-            onClick={() => setLocationModalOpen(true)}
-            sx={{
-              mb: 1.5,
-              p: 1.75,
-              borderRadius: 1.75,
-              backgroundColor: theme.palette.gray[50],
-              border: `0.5px solid ${theme.palette.gray[200]}`,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              "&:hover": {
-                borderColor: theme.palette.gray[300],
-              },
-            }}
-          >
-            <LocationIcon
-              sx={{ color: theme.palette.text.secondary, mr: 1.5 }}
-            />
-            <Box sx={{ flex: 1 }}>
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  color: theme.palette.text.secondary,
-                  fontWeight: 500,
-                }}
-              >
-                Location *
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 15,
-                  color: address
-                    ? theme.palette.text.primary
-                    : theme.palette.text.secondary,
-                  mt: 0.25,
-                }}
-              >
-                {address || "Use current location or select manually"}
-              </Typography>
-            </Box>
-            <ChevronRightIcon sx={{ color: theme.palette.text.secondary }} />
-          </Box>
-          {fieldErrors.address && (
+          {/* Header */}
+          <Box sx={{ mb: 3, textAlign: "center" }}>
             <Typography
+              variant="h4"
               sx={{
-                fontSize: 13,
-                color: theme.palette.error.main,
-                mt: 0.5,
-                mb: 1.5,
-                ml: 0.5,
+                fontWeight: 800,
+                fontSize: { xs: "1.7rem", md: "2.3rem" },
+                color: theme.palette.text.primary,
+                mb: 0.75,
               }}
             >
-              {fieldErrors.address}
-            </Typography>
-          )}
-
-          {/* Description */}
-          <TextField
-            {...textFieldProps}
-            label="Description (optional)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            multiline
-            rows={3}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment
-                  position="start"
-                  sx={{ alignSelf: "flex-start", mt: 1.5 }}
-                >
-                  <DescriptionIcon
-                    sx={{ color: theme.palette.text.secondary }}
-                  />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          {/* Brand Color */}
-          <Box
-            onClick={() => {
-              setTempColor(brandColor);
-              setColorModalOpen(true);
-            }}
-            sx={{
-              mb: 1.5,
-              p: 1.75,
-              borderRadius: 1.75,
-              backgroundColor: theme.palette.gray[50],
-              border: `0.5px solid ${theme.palette.gray[200]}`,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              "&:hover": {
-                borderColor: theme.palette.gray[300],
-              },
-            }}
-          >
-            <PaletteIcon
-              sx={{ color: theme.palette.text.secondary, mr: 1.5 }}
-            />
-            <Box sx={{ flex: 1 }}>
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  color: theme.palette.text.secondary,
-                  fontWeight: 500,
-                }}
+              Create New{" "}
+              <Box
+                component="span"
+                sx={{ color: theme.palette.secondary.main }}
               >
-                Brand color
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 15,
-                  color: theme.palette.text.primary,
-                  mt: 0.25,
-                }}
-              >
-                {brandColor}
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                backgroundColor: brandColor,
-                border: `1px solid ${theme.palette.gray[200]}`,
-                mr: 1,
-              }}
-            />
-            <ChevronRightIcon sx={{ color: theme.palette.text.secondary }} />
-          </Box>
-
-          {/* Logo Upload */}
-          <Box
-            sx={{
-              mb: 1.5,
-              p: 2.5,
-              borderRadius: 1.75,
-              backgroundColor: theme.palette.gray[50],
-              border: `0.5px solid ${theme.palette.gray[200]}`,
-              textAlign: "center",
-            }}
-          >
-            {image ? (
-              <Box sx={{ position: "relative", display: "inline-block" }}>
-                <Box
-                  component="img"
-                  src={image.uri}
-                  alt="Shop logo"
-                  sx={{
-                    width: 140,
-                    height: 100,
-                    objectFit: "cover",
-                    borderRadius: 1.25,
-                    border: `1px solid ${theme.palette.gray[200]}`,
-                  }}
-                />
-                <IconButton
-                  onClick={removeImage}
-                  sx={{
-                    position: "absolute",
-                    top: 6,
-                    right: 6,
-                    width: 24,
-                    height: 24,
-                    backgroundColor: theme.palette.text.primary,
-                    color: "#fff",
-                    "&:hover": {
-                      backgroundColor: theme.palette.text.primary,
-                    },
-                  }}
-                >
-                  <CloseIcon sx={{ fontSize: 14 }} />
-                </IconButton>
+                Shop
               </Box>
-            ) : (
-              <ImageIcon
-                sx={{
-                  fontSize: 40,
-                  color: theme.palette.text.secondary,
-                  mb: 1,
-                }}
-              />
-            )}
+            </Typography>
             <Typography
               sx={{
-                fontSize: 13,
+                fontSize: 15,
                 color: theme.palette.text.secondary,
-                mb: 1,
-                mt: image ? 1 : 0,
+                opacity: 0.9,
               }}
             >
-              Upload a shop logo (JPG, PNG, GIF, WEBP – max 5MB)
+              Set up your shop profile
             </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                gap: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Typography
-                onClick={() => setImageModalOpen(true)}
+          </Box>
+
+          {/* Form Card */}
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 2,
+              border: `1px solid ${theme.palette.gray[200]}`,
+              p: { xs: 2.5, sm: 3.5 },
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+            }}
+          >
+            {/* General Error */}
+            {generalError && (
+              <Box
                 sx={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: theme.palette.primary.main,
-                  cursor: "pointer",
-                  "&:hover": { textDecoration: "underline" },
+                  mb: 2.5,
+                  p: 2,
+                  borderRadius: 1.5,
+                  backgroundColor: "#fee",
+                  border: "1px solid #fcc",
                 }}
               >
-                {image ? "Update logo" : "Add logo"}
-              </Typography>
-              {image && (
-                <>
-                  <Typography sx={{ color: theme.palette.text.secondary }}>
-                    •
-                  </Typography>
-                  <Typography
-                    onClick={removeImage}
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: theme.palette.error.main,
-                      cursor: "pointer",
-                      "&:hover": { textDecoration: "underline" },
-                    }}
-                  >
-                    Remove
-                  </Typography>
-                </>
-              )}
-            </Box>
-          </Box>
-          {fieldErrors.image && (
-            <Typography
-              sx={{
-                fontSize: 13,
-                color: theme.palette.error.main,
-                mt: 0.5,
-                mb: 1.5,
-                ml: 0.5,
-              }}
-            >
-              {fieldErrors.image}
-            </Typography>
-          )}
+                <Typography
+                  sx={{ color: "#c33", fontSize: 14, fontWeight: 500 }}
+                >
+                  {generalError}
+                </Typography>
+              </Box>
+            )}
 
-          {/* Action Buttons */}
-          <Box sx={{ mt: 2, display: "flex", gap: 1.5 }}>
-            <AppButton
-              type="button"
-              onClick={() => navigate("/shops")}
-              fullWidth
-              sx={{
-                py: 1.5,
-                fontSize: 15,
-                backgroundColor: "transparent",
-                color: theme.palette.text.secondary,
-                border: `1px solid ${theme.palette.gray[300]}`,
-                "&:hover": {
-                  backgroundColor: theme.palette.gray[50],
-                },
-              }}
-            >
-              Cancel
-            </AppButton>
-            <AppButton
-              type="submit"
-              disabled={loading}
-              fullWidth
-              sx={{ py: 1.5, fontSize: 15 }}
-            >
-              {loading ? "Creating..." : "Create Shop"}
-            </AppButton>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* Location Modal */}
-      <Dialog
-        open={locationModalOpen}
-        onClose={() => setLocationModalOpen(false)}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={{
-          sx: {
-            borderRadius: 2.25,
-            minHeight: 500,
-          },
-        }}
-      >
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, flex: 1 }}>
-              {level === "districts" ? "Locations" : currentDistrict}
-            </Typography>
-            <IconButton
-              onClick={() => {
-                if (level === "towns") {
-                  setLevel("districts");
-                  setLocationSearch("");
-                } else {
-                  setLocationModalOpen(false);
-                }
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-        <DialogContent dividers sx={{ p: 0 }}>
-          <Box sx={{ p: 2, pb: 1 }}>
+            {/* Shop Name */}
             <TextField
-              fullWidth
-              size="small"
-              placeholder={
-                level === "districts"
-                  ? "Search district"
-                  : `Search in ${currentDistrict}`
-              }
-              value={locationSearch}
-              onChange={(e) => setLocationSearch(e.target.value)}
+              {...textFieldProps}
+              label="Shop name *"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setFieldErrors((prev) => ({ ...prev, name: undefined }));
+              }}
+              error={!!fieldErrors.name}
+              helperText={fieldErrors.name}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon />
+                    <StoreIcon sx={{ color: theme.palette.text.secondary }} />
                   </InputAdornment>
                 ),
               }}
+            />
+
+            {/* Location Selector */}
+            <Box
+              onClick={() => setLocationModalOpen(true)}
               sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 1.75,
-                  backgroundColor: theme.palette.gray[50],
+                mb: 1.5,
+                p: 1.75,
+                borderRadius: 1.75,
+                backgroundColor: theme.palette.gray[50],
+                border: `0.5px solid ${theme.palette.gray[200]}`,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                "&:hover": {
+                  borderColor: theme.palette.gray[300],
                 },
               }}
-            />
-          </Box>
-
-          {/* Use current location row (only at districts level) */}
-          {level === "districts" && (
-            <Box sx={{ px: 2, pb: 1 }}>
-              <ListItem
-                disablePadding
+            >
+              <LocationIcon
+                sx={{ color: theme.palette.text.secondary, mr: 1.5 }}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    color: theme.palette.text.secondary,
+                    fontWeight: 500,
+                  }}
+                >
+                  Location *
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 15,
+                    color: address
+                      ? theme.palette.text.primary
+                      : theme.palette.text.secondary,
+                    mt: 0.25,
+                  }}
+                >
+                  {address || "Use current location or select manually"}
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ color: theme.palette.text.secondary }} />
+            </Box>
+            {fieldErrors.address && (
+              <Typography
                 sx={{
-                  mb: 0.5,
-                  borderBottom: `1px solid ${theme.palette.gray[100]}`,
+                  fontSize: 13,
+                  color: theme.palette.error.main,
+                  mt: 0.5,
+                  mb: 1.5,
+                  ml: 0.5,
                 }}
               >
-                <ListItemButton
-                  onClick={handleUseCurrentLocation}
-                  disabled={locationLoading}
-                >
-                  <LocationIcon
-                    sx={{ mr: 1.5, color: theme.palette.secondary.main }}
-                  />
-                  <ListItemText
-                    primary={
-                      locationLoading
-                        ? "Getting your current location..."
-                        : "Use my current location"
-                    }
-                    secondary="Auto-detect your town & district"
-                  />
-                  {locationLoading ? (
-                    <CircularProgress
-                      size={18}
-                      sx={{ color: theme.palette.secondary.main }}
-                    />
-                  ) : (
-                    <ChevronRightIcon
-                      sx={{ color: theme.palette.text.secondary }}
-                    />
-                  )}
-                </ListItemButton>
-              </ListItem>
-            </Box>
-          )}
+                {fieldErrors.address}
+              </Typography>
+            )}
 
-          <List sx={{ py: 0 }}>
-            {filteredLocations.length > 0 ? (
-              filteredLocations.map((item) => (
-                <ListItem key={item} disablePadding>
-                  <ListItemButton onClick={() => handleLocationSelect(item)}>
-                    <ListItemText
-                      primary={
-                        level === "districts"
-                          ? `${item}, Lebanon`
-                          : `${item}, ${currentDistrict}`
-                      }
-                    />
-                    <ChevronRightIcon
+            {/* Description */}
+            <TextField
+              {...textFieldProps}
+              label="Description (optional)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              multiline
+              rows={3}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment
+                    position="start"
+                    sx={{ alignSelf: "flex-start", mt: 1.5 }}
+                  >
+                    <DescriptionIcon
                       sx={{ color: theme.palette.text.secondary }}
                     />
-                  </ListItemButton>
-                </ListItem>
-              ))
-            ) : (
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            {/* Brand Color */}
+            <Box
+              onClick={() => {
+                setTempColor(brandColor);
+                setColorModalOpen(true);
+              }}
+              sx={{
+                mb: 1.5,
+                p: 1.75,
+                borderRadius: 1.75,
+                backgroundColor: theme.palette.gray[50],
+                border: `0.5px solid ${theme.palette.gray[200]}`,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                "&:hover": {
+                  borderColor: theme.palette.gray[300],
+                },
+              }}
+            >
+              <PaletteIcon
+                sx={{ color: theme.palette.text.secondary, mr: 1.5 }}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    color: theme.palette.text.secondary,
+                    fontWeight: 500,
+                  }}
+                >
+                  Brand color
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 15,
+                    color: theme.palette.text.primary,
+                    mt: 0.25,
+                  }}
+                >
+                  {brandColor}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  backgroundColor: brandColor,
+                  border: `1px solid ${theme.palette.gray[200]}`,
+                  mr: 1,
+                }}
+              />
+              <ChevronRightIcon sx={{ color: theme.palette.text.secondary }} />
+            </Box>
+
+            {/* Logo Upload */}
+            <Box
+              sx={{
+                mb: 1.5,
+                p: 2.5,
+                borderRadius: 1.75,
+                backgroundColor: theme.palette.gray[50],
+                border: `0.5px solid ${theme.palette.gray[200]}`,
+                textAlign: "center",
+              }}
+            >
+              {image ? (
+                <Box sx={{ position: "relative", display: "inline-block" }}>
+                  <Box
+                    component="img"
+                    src={image.uri}
+                    alt="Shop logo"
+                    sx={{
+                      width: 140,
+                      height: 100,
+                      objectFit: "cover",
+                      borderRadius: 1.25,
+                      border: `1px solid ${theme.palette.gray[200]}`,
+                    }}
+                  />
+                  <IconButton
+                    onClick={removeImage}
+                    sx={{
+                      position: "absolute",
+                      top: 6,
+                      right: 6,
+                      width: 24,
+                      height: 24,
+                      backgroundColor: theme.palette.text.primary,
+                      color: "#fff",
+                      "&:hover": {
+                        backgroundColor: theme.palette.text.primary,
+                      },
+                    }}
+                  >
+                    <CloseIcon sx={{ fontSize: 14 }} />
+                  </IconButton>
+                </Box>
+              ) : (
+                <ImageIcon
+                  sx={{
+                    fontSize: 40,
+                    color: theme.palette.text.secondary,
+                    mb: 1,
+                  }}
+                />
+              )}
+              <Typography
+                sx={{
+                  fontSize: 13,
+                  color: theme.palette.text.secondary,
+                  mb: 1,
+                  mt: image ? 1 : 0,
+                }}
+              >
+                Upload a shop logo (JPG, PNG, GIF, WEBP – max 5MB)
+              </Typography>
               <Box
                 sx={{
                   display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
+                  gap: 1,
                   justifyContent: "center",
-                  py: 6,
-                  px: 3,
+                  alignItems: "center",
                 }}
               >
                 <Typography
-                  sx={{
-                    fontSize: 16,
-                    fontWeight: 500,
-                    color: theme.palette.text.primary,
-                    mb: 0.5,
-                  }}
-                >
-                  No locations found
-                </Typography>
-                <Typography
+                  onClick={() => setImageModalOpen(true)}
                   sx={{
                     fontSize: 14,
-                    color: theme.palette.text.secondary,
-                    textAlign: "center",
+                    fontWeight: 600,
+                    color: theme.palette.primary.main,
+                    cursor: "pointer",
+                    "&:hover": { textDecoration: "underline" },
                   }}
                 >
-                  Try a different search term
+                  {image ? "Update logo" : "Add logo"}
                 </Typography>
+                {image && (
+                  <>
+                    <Typography sx={{ color: theme.palette.text.secondary }}>
+                      •
+                    </Typography>
+                    <Typography
+                      onClick={removeImage}
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: theme.palette.error.main,
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      Remove
+                    </Typography>
+                  </>
+                )}
+              </Box>
+            </Box>
+            {fieldErrors.image && (
+              <Typography
+                sx={{
+                  fontSize: 13,
+                  color: theme.palette.error.main,
+                  mt: 0.5,
+                  mb: 1.5,
+                  ml: 0.5,
+                }}
+              >
+                {fieldErrors.image}
+              </Typography>
+            )}
+
+            {/* Action Buttons */}
+            <Box sx={{ mt: 2, display: "flex", gap: 1.5 }}>
+              <AppButton
+                type="button"
+                onClick={() => navigate("/shops")}
+                fullWidth
+                sx={{
+                  py: 1.5,
+                  fontSize: 15,
+                  backgroundColor: "transparent",
+                  color: theme.palette.text.secondary,
+                  border: `1px solid ${theme.palette.gray[300]}`,
+                  "&:hover": {
+                    backgroundColor: theme.palette.gray[50],
+                  },
+                }}
+              >
+                Cancel
+              </AppButton>
+              <AppButton
+                type="submit"
+                disabled={loading}
+                fullWidth
+                sx={{ py: 1.5, fontSize: 15 }}
+              >
+                {loading ? "Creating..." : "Create Shop"}
+              </AppButton>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Location Modal */}
+        <Dialog
+          open={locationModalOpen}
+          onClose={() => setLocationModalOpen(false)}
+          fullWidth
+          maxWidth="sm"
+          PaperProps={{
+            sx: {
+              borderRadius: 2.25,
+              minHeight: 500,
+            },
+          }}
+        >
+          <DialogTitle sx={{ pb: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, flex: 1 }}>
+                {level === "districts" ? "Locations" : currentDistrict}
+              </Typography>
+              <IconButton
+                onClick={() => {
+                  if (level === "towns") {
+                    setLevel("districts");
+                    setLocationSearch("");
+                  } else {
+                    setLocationModalOpen(false);
+                  }
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent dividers sx={{ p: 0 }}>
+            <Box sx={{ p: 2, pb: 1 }}>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder={
+                  level === "districts"
+                    ? "Search district"
+                    : `Search in ${currentDistrict}`
+                }
+                value={locationSearch}
+                onChange={(e) => setLocationSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 1.75,
+                    backgroundColor: theme.palette.gray[50],
+                  },
+                }}
+              />
+            </Box>
+
+            {/* Use current location row (only at districts level) */}
+            {level === "districts" && (
+              <Box sx={{ px: 2, pb: 1 }}>
+                <ListItem
+                  disablePadding
+                  sx={{
+                    mb: 0.5,
+                    borderBottom: `1px solid ${theme.palette.gray[100]}`,
+                  }}
+                >
+                  <ListItemButton
+                    onClick={handleUseCurrentLocation}
+                    disabled={locationLoading}
+                  >
+                    <LocationIcon
+                      sx={{
+                        mr: 1.5,
+                        color: theme.palette.secondary.main,
+                      }}
+                    />
+                    <ListItemText
+                      primary={
+                        locationLoading
+                          ? "Getting your current location..."
+                          : "Use my current location"
+                      }
+                      secondary="Auto-detect your town & district"
+                    />
+                    {locationLoading ? (
+                      <CircularProgress
+                        size={18}
+                        sx={{ color: theme.palette.secondary.main }}
+                      />
+                    ) : (
+                      <ChevronRightIcon
+                        sx={{ color: theme.palette.text.secondary }}
+                      />
+                    )}
+                  </ListItemButton>
+                </ListItem>
               </Box>
             )}
-          </List>
-        </DialogContent>
-      </Dialog>
 
-      {/* Image Upload Modal */}
-      <Dialog
-        open={imageModalOpen}
-        onClose={() => setImageModalOpen(false)}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 2.25,
-            p: 2.5,
-            minHeight: 240,
-          },
-        }}
-      >
-        <DialogTitle sx={{ textAlign: "center", pb: 0.5, pt: 0 }}>
-          Add shop logo
-        </DialogTitle>
-        <DialogContent sx={{ textAlign: "center", pb: 0.5, pt: 1 }}>
-          <Typography
-            sx={{ fontSize: 14, color: theme.palette.text.secondary }}
-          >
-            Choose a logo from your files
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ flexDirection: "column", gap: 1, p: 0, pt: 1.5 }}>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleImageSelect}
-            style={{ display: "none" }}
-          />
-          <Button
-            fullWidth
-            variant="contained"
-            startIcon={<ImageIcon />}
-            onClick={() => fileInputRef.current?.click()}
-            sx={{
-              py: 1.25,
-              borderRadius: 1.5,
-              textTransform: "none",
-              fontSize: 15,
-            }}
-          >
-            Choose from files
-          </Button>
-          <Button
-            fullWidth
-            variant="text"
-            onClick={() => setImageModalOpen(false)}
-            sx={{ textTransform: "none" }}
-          >
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <List sx={{ py: 0 }}>
+              {filteredLocations.length > 0 ? (
+                filteredLocations.map((item) => (
+                  <ListItem key={item} disablePadding>
+                    <ListItemButton onClick={() => handleLocationSelect(item)}>
+                      <ListItemText
+                        primary={
+                          level === "districts"
+                            ? `${item}, Lebanon`
+                            : `${item}, ${currentDistrict}`
+                        }
+                      />
+                      <ChevronRightIcon
+                        sx={{ color: theme.palette.text.secondary }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                ))
+              ) : (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    py: 6,
+                    px: 3,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 16,
+                      fontWeight: 500,
+                      color: theme.palette.text.primary,
+                      mb: 0.5,
+                    }}
+                  >
+                    No locations found
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      color: theme.palette.text.secondary,
+                      textAlign: "center",
+                    }}
+                  >
+                    Try a different search term
+                  </Typography>
+                </Box>
+              )}
+            </List>
+          </DialogContent>
+        </Dialog>
 
-      {/* Color Picker Modal */}
-      <Dialog
-        open={colorModalOpen}
-        onClose={() => setColorModalOpen(false)}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 2.25,
-            p: 2,
-            minHeight: 420,
-          },
-        }}
-      >
-        <DialogTitle sx={{ textAlign: "center", pb: 1 }}>
-          Choose brand color
-        </DialogTitle>
-        <DialogContent sx={{ textAlign: "center", pb: 2 }}>
-          <Typography
-            sx={{
-              fontSize: 14,
-              color: theme.palette.text.secondary,
-              mb: 2,
-            }}
-          >
-            This color can be used in your future shop page & website.
-          </Typography>
-          <input
-            type="color"
-            value={tempColor}
-            onChange={(e) => setTempColor(e.target.value)}
-            style={{
-              width: "100%",
-              height: 200,
-              border: "none",
-              borderRadius: 12,
-              cursor: "pointer",
-            }}
-          />
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 1,
-              mt: 2,
-            }}
-          >
-            <Box
-              sx={{
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                backgroundColor: tempColor,
-                border: `1px solid ${theme.palette.gray[200]}`,
-              }}
-            />
+        {/* Image Upload Modal */}
+        <Dialog
+          open={imageModalOpen}
+          onClose={() => setImageModalOpen(false)}
+          maxWidth="xs"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 2.25,
+              p: 2.5,
+              minHeight: 240,
+            },
+          }}
+        >
+          <DialogTitle sx={{ textAlign: "center", pb: 0.5, pt: 0 }}>
+            Add shop logo
+          </DialogTitle>
+          <DialogContent sx={{ textAlign: "center", pb: 0.5, pt: 1 }}>
             <Typography
               sx={{ fontSize: 14, color: theme.palette.text.secondary }}
             >
-              {tempColor}
+              Choose a logo from your files
             </Typography>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ flexDirection: "column", gap: 1, p: 2, pt: 0 }}>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={() => {
-              setBrandColor(tempColor);
-              setColorModalOpen(false);
-            }}
-            sx={{
-              py: 1.25,
-              borderRadius: 1.5,
-              textTransform: "none",
-              fontSize: 15,
-            }}
+          </DialogContent>
+          <DialogActions
+            sx={{ flexDirection: "column", gap: 1, p: 0, pt: 1.5 }}
           >
-            Use this color
-          </Button>
-          <Button
-            fullWidth
-            variant="text"
-            onClick={() => setColorModalOpen(false)}
-            sx={{ textTransform: "none" }}
-          >
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              style={{ display: "none" }}
+            />
+            <Button
+              fullWidth
+              variant="contained"
+              startIcon={<ImageIcon />}
+              onClick={() => fileInputRef.current?.click()}
+              sx={{
+                py: 1.25,
+                borderRadius: 1.5,
+                textTransform: "none",
+                fontSize: 15,
+              }}
+            >
+              Choose from files
+            </Button>
+            <Button
+              fullWidth
+              variant="text"
+              onClick={() => setImageModalOpen(false)}
+              sx={{ textTransform: "none" }}
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Color Picker Modal */}
+        <Dialog
+          open={colorModalOpen}
+          onClose={() => setColorModalOpen(false)}
+          maxWidth="xs"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 2.25,
+              p: 2,
+              minHeight: 420,
+            },
+          }}
+        >
+          <DialogTitle sx={{ textAlign: "center", pb: 1 }}>
+            Choose brand color
+          </DialogTitle>
+          <DialogContent sx={{ textAlign: "center", pb: 2 }}>
+            <Typography
+              sx={{
+                fontSize: 14,
+                color: theme.palette.text.secondary,
+                mb: 2,
+              }}
+            >
+              This color can be used in your future shop page & website.
+            </Typography>
+            <input
+              type="color"
+              value={tempColor}
+              onChange={(e) => setTempColor(e.target.value)}
+              style={{
+                width: "100%",
+                height: 200,
+                border: "none",
+                borderRadius: 12,
+                cursor: "pointer",
+              }}
+            />
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 1,
+                mt: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  backgroundColor: tempColor,
+                  border: `1px solid ${theme.palette.gray[200]}`,
+                }}
+              />
+              <Typography
+                sx={{ fontSize: 14, color: theme.palette.text.secondary }}
+              >
+                {tempColor}
+              </Typography>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ flexDirection: "column", gap: 1, p: 2, pt: 0 }}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() => {
+                setBrandColor(tempColor);
+                setColorModalOpen(false);
+              }}
+              sx={{
+                py: 1.25,
+                borderRadius: 1.5,
+                textTransform: "none",
+                fontSize: 15,
+              }}
+            >
+              Use this color
+            </Button>
+            <Button
+              fullWidth
+              variant="text"
+              onClick={() => setColorModalOpen(false)}
+              sx={{ textTransform: "none" }}
+            >
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </>
   );
 }

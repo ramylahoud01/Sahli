@@ -1,8 +1,9 @@
 // src/pages/Shop/PublicShopPageLoading.jsx
 import React from "react";
-import { Box, Skeleton } from "@mui/material";
+import { Box, Skeleton, Container } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { keyframes } from "@mui/system";
+import CardLoading from "../../components/loading/CardLoading";
 
 const pulse = keyframes`
   0%, 100% {
@@ -117,225 +118,152 @@ export default function PublicShopPageLoading() {
         </Box>
       </Box>
 
-      {/* SHOP DESCRIPTION CARD SKELETON */}
-      <Box
-        sx={{
-          mt: 2,
-        }}
+      {/* HERO BANNER CARD SKELETON */}
+      <Container
+        maxWidth="xl"
+        sx={{ mt: { xs: 2, md: 3 }, px: { xs: 2, sm: 2.5, md: 3 } }}
       >
         <Box
           sx={{
-            maxWidth: 1400,
-            mx: "auto",
-            px: { xs: 2.5, sm: 3.5, md: 4 },
+            position: "relative",
+            borderRadius: "16px",
+            bgcolor: "#FFFFFF",
+            boxShadow: "0 3px 14px rgba(15, 23, 42, 0.05)",
+            border: `1px solid ${theme.palette.grey[300]}`,
+            p: { xs: 2.5, sm: 3, md: 3.5 },
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              bottom: 0,
+              width: "4px",
+              bgcolor: theme.palette.grey[300],
+              borderRadius: "16px 0 0 16px",
+            },
           }}
         >
-          <Box
-            sx={{
-              width: "100%",
-              borderRadius: 2,
-              bgcolor: "#FFFFFF",
-              boxShadow: "0 8px 24px rgba(15, 23, 42, 0.04)",
-              border: `1px solid ${theme.palette.gray?.[200] || "#e5e7eb"}`,
-              p: 2.5,
-              display: "flex",
-              gap: 2,
-            }}
-          >
-            {/* Accent bar skeleton */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {/* Title skeleton */}
             <Skeleton
-              variant="rectangular"
-              width={5}
-              height={60}
+              variant="text"
+              width="40%"
+              height={28}
               sx={{
-                borderRadius: 999,
                 animation: `${pulse} 1.4s ease-in-out infinite`,
               }}
             />
-
-            {/* Text content skeleton */}
-            <Box
-              sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 1 }}
-            >
-              {/* Title skeleton */}
-              <Skeleton
-                variant="text"
-                width="40%"
-                height={24}
-                sx={{
-                  animation: `${pulse} 1.4s ease-in-out infinite`,
-                }}
-              />
-              {/* Description skeleton - 2 lines */}
-              <Skeleton
-                variant="text"
-                width="90%"
-                height={16}
-                sx={{
-                  animation: `${pulse} 1.4s ease-in-out infinite`,
-                  animationDelay: "0.1s",
-                }}
-              />
-              <Skeleton
-                variant="text"
-                width="75%"
-                height={16}
-                sx={{
-                  animation: `${pulse} 1.4s ease-in-out infinite`,
-                  animationDelay: "0.2s",
-                }}
-              />
-            </Box>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* FILTER STRIP LOADING */}
-      <Box
-        sx={{
-          bgcolor: theme.palette.gray?.[50] || "#f9fafb",
-          mt: 2,
-          py: 2.2,
-        }}
-      >
-        <Box
-          sx={{
-            maxWidth: 1400,
-            mx: "auto",
-            px: { xs: 2.5, sm: 3.5, md: 4 },
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 1.5,
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          {/* Stats pill skeleton */}
-          <Skeleton
-            variant="rectangular"
-            width={200}
-            height={36}
-            sx={{
-              borderRadius: 999,
-              animation: `${pulse} 1.4s ease-in-out infinite`,
-            }}
-          />
-
-          {/* Filter pills skeleton */}
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 1,
-              alignItems: "center",
-            }}
-          >
+            {/* Description skeleton - 2 lines */}
             <Skeleton
-              variant="rectangular"
-              width={240}
-              height={38}
+              variant="text"
+              width="85%"
+              height={16}
               sx={{
-                borderRadius: 999,
                 animation: `${pulse} 1.4s ease-in-out infinite`,
                 animationDelay: "0.1s",
               }}
             />
             <Skeleton
-              variant="rectangular"
-              width={190}
-              height={38}
+              variant="text"
+              width="70%"
+              height={16}
               sx={{
-                borderRadius: 999,
                 animation: `${pulse} 1.4s ease-in-out infinite`,
                 animationDelay: "0.2s",
               }}
             />
           </Box>
         </Box>
-      </Box>
+      </Container>
 
-      {/* PRODUCTS SECTION LOADING */}
-      <Box
-        sx={{
-          py: { xs: theme.spacing(5), md: theme.spacing(6) },
-        }}
+      {/* STATS & FILTER BAR SKELETON */}
+      <Container
+        maxWidth="xl"
+        sx={{ mt: { xs: 2.5, md: 4 }, px: { xs: 2.5, sm: 3, md: 4 } }}
       >
         <Box
           sx={{
-            maxWidth: 1400,
-            mx: "auto",
-            px: { xs: 2.5, sm: 3.5, md: 4 },
+            bgcolor: "#FFFFFF",
+            borderRadius: "18px",
+            p: { xs: 2.5, sm: 3 },
+            boxShadow: "0 4px 16px rgba(15, 23, 42, 0.05)",
+            border: `1px solid ${theme.palette.grey[200]}`,
+            display: "flex",
+            flexDirection: { xs: "column", lg: "row" },
+            gap: 2.5,
+            alignItems: { xs: "stretch", lg: "center" },
+            justifyContent: "space-between",
           }}
         >
-          {/* Product cards grid skeleton */}
+          {/* Left: Stats skeleton */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+              <Skeleton
+                variant="text"
+                width={100}
+                height={14}
+                sx={{
+                  animation: `${pulse} 1.4s ease-in-out infinite`,
+                }}
+              />
+              <Skeleton
+                variant="text"
+                width={140}
+                height={18}
+                sx={{
+                  animation: `${pulse} 1.4s ease-in-out infinite`,
+                  animationDelay: "0.1s",
+                }}
+              />
+            </Box>
+          </Box>
+
+          {/* Right: Filter skeletons */}
           <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "repeat(1, 1fr)",
-                sm: "repeat(2, 1fr)",
-                md: "repeat(3, 1fr)",
-                lg: "repeat(4, 1fr)",
-              },
-              gap: 2.5,
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2,
+              alignItems: "center",
             }}
           >
-            {[...Array(8)].map((_, i) => (
-              <Box
-                key={i}
-                sx={{
-                  borderRadius: 1.25,
-                  overflow: "hidden",
-                  backgroundColor: theme.palette.background.paper,
-                  border: `1px solid ${theme.palette.gray?.[200] || "#e5e7eb"}`,
-                }}
-              >
-                {/* Image placeholder */}
-                <Skeleton
-                  variant="rectangular"
-                  width="100%"
-                  sx={{
-                    paddingTop: "56.25%", // 16:9
-                    animation: `${pulse} 1.4s ease-in-out infinite`,
-                    animationDelay: `${i * 0.06}s`,
-                  }}
-                />
-
-                {/* Content skeleton */}
-                <Box
-                  sx={{
-                    p: 1.5,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 0.75,
-                  }}
-                >
-                  {/* Title */}
-                  <Skeleton
-                    variant="text"
-                    width="80%"
-                    height={18}
-                    sx={{
-                      animation: `${pulse} 1.4s ease-in-out infinite`,
-                      animationDelay: `${i * 0.06}s`,
-                    }}
-                  />
-                  {/* Category / meta */}
-                  <Skeleton
-                    variant="text"
-                    width="50%"
-                    height={14}
-                    sx={{
-                      animation: `${pulse} 1.4s ease-in-out infinite`,
-                      animationDelay: `${i * 0.06}s`,
-                    }}
-                  />
-                </Box>
-              </Box>
-            ))}
+            <Skeleton
+              variant="rectangular"
+              width={220}
+              height={44}
+              sx={{
+                borderRadius: "12px",
+                animation: `${pulse} 1.4s ease-in-out infinite`,
+                animationDelay: "0.1s",
+              }}
+            />
+            <Skeleton
+              variant="rectangular"
+              width={140}
+              height={44}
+              sx={{
+                borderRadius: "12px",
+                animation: `${pulse} 1.4s ease-in-out infinite`,
+                animationDelay: "0.2s",
+              }}
+            />
           </Box>
         </Box>
-      </Box>
+      </Container>
+
+      {/* PRODUCTS SECTION LOADING */}
+      <Container
+        maxWidth="xl"
+        sx={{
+          mt: 4,
+          mb: { xs: 5, md: 6 },
+          px: { xs: 2.5, sm: 3, md: 4 },
+        }}
+      >
+        {/* Use the same CardLoading component as the products grid */}
+        <CardLoading items={16} />
+      </Container>
     </Box>
   );
 }

@@ -3,7 +3,7 @@ import React from "react";
 import { Box, keyframes } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
 
-// Slow, smooth shift for gradient blobs
+// Smooth blob drift
 const drift = keyframes`
   0% { transform: translate(0px, 0px) scale(1); }
   25% { transform: translate(40px, -30px) scale(1.05); }
@@ -12,32 +12,30 @@ const drift = keyframes`
   100% { transform: translate(0px, 0px) scale(1); }
 `;
 
-// Gentle parallax for the mesh layer
+// Soft parallax movement for the mesh layer
 const parallax = keyframes`
   0% { transform: translate3d(0,0,0); }
   50% { transform: translate3d(-1.5%, -1%, 0); }
   100% { transform: translate3d(0,0,0); }
 `;
 
-const AnimatedBackground = ({ accentColor }) => {
+export default function AnimatedBackground({ primaryColor, secondaryColor }) {
   const theme = useTheme();
+  console.log("primaryColor", primaryColor);
+  console.log("secondaryColor", secondaryColor);
+  // Use provided props OR theme fallback
+  const dark = primaryColor || theme.palette.primary.main;
+  const mint = secondaryColor || theme.palette.secondary.main;
+  // Build soft blended mesh layers
+  const meshMint = alpha(mint, 0.32);
+  const meshDark = alpha(dark, 0.18);
+  const meshSoft = alpha("#c7d9d0", 0.25); // soft mint highlight
 
-  // Shop color or fallback: Sahli secondary (mint green)
-  const baseAccent = accentColor || theme.palette.secondary.main;
+  // Orbs
+  const orbLeft = alpha(mint, 0.28);
+  const orbRight = alpha("#d9f2e6", 0.25); // bright glow
 
-  // Extra theme colors for blending
-  const secondary = theme.palette.secondary.main;
-  const tertiary = theme.palette.tertiary?.main || "#6040FF";
-
-  // Build meshes
-  const meshPrimary = alpha(baseAccent, 0.35);
-  const meshSecondary = alpha(secondary, 0.32);
-  const meshAccent = alpha(tertiary, 0.25);
-
-  const orbLeft = alpha(baseAccent, 0.28);
-  const orbRight = alpha(secondary, 0.28);
-
-  const dotColor = alpha(baseAccent, 0.38);
+  const dotColor = alpha(mint, 0.35);
 
   return (
     <Box
@@ -51,7 +49,7 @@ const AnimatedBackground = ({ accentColor }) => {
         background: theme.palette.background.default,
       }}
     >
-      {/* Mesh gradient layer (MAIN BACKGROUND) */}
+      {/* Mesh gradient layer */}
       <Box
         sx={{
           position: "absolute",
@@ -59,15 +57,15 @@ const AnimatedBackground = ({ accentColor }) => {
           filter: "blur(90px)",
           opacity: 0.35,
           background: `
-            radial-gradient(35% 40% at 20% 30%, ${meshPrimary} 0%, transparent 60%),
-            radial-gradient(40% 45% at 80% 70%, ${meshSecondary} 0%, transparent 60%),
-            radial-gradient(30% 35% at 60% 20%, ${meshAccent} 0%, transparent 60%)
+            radial-gradient(35% 40% at 20% 30%, ${meshMint} 0%, transparent 60%),
+            radial-gradient(40% 45% at 80% 70%, ${meshDark} 0%, transparent 60%),
+            radial-gradient(30% 35% at 60% 20%, ${meshSoft} 0%, transparent 60%)
           `,
           animation: `${parallax} 26s ease-in-out infinite`,
         }}
       />
 
-      {/* Dot grid overlay */}
+      {/* Dot grid */}
       <Box
         sx={{
           position: "absolute",
@@ -79,14 +77,14 @@ const AnimatedBackground = ({ accentColor }) => {
         }}
       />
 
-      {/* Floating orb left */}
+      {/* Left orb */}
       <Box
         sx={{
           position: "absolute",
-          top: { xs: "10%", md: "12%" },
+          top: { xs: "12%", md: "15%" },
           left: { xs: "-10%", md: "-6%" },
-          width: { xs: 220, md: 320 },
-          height: { xs: 220, md: 320 },
+          width: { xs: 260, md: 340 },
+          height: { xs: 260, md: 340 },
           borderRadius: "50%",
           background: `radial-gradient(circle at 30% 30%, ${orbLeft}, transparent 60%)`,
           filter: "blur(30px)",
@@ -94,14 +92,14 @@ const AnimatedBackground = ({ accentColor }) => {
         }}
       />
 
-      {/* Floating orb right */}
+      {/* Right orb */}
       <Box
         sx={{
           position: "absolute",
-          bottom: { xs: "-6%", md: "-10%" },
-          right: { xs: "-12%", md: "-6%" },
-          width: { xs: 260, md: 380 },
-          height: { xs: 260, md: 380 },
+          bottom: { xs: "-8%", md: "-12%" },
+          right: { xs: "-10%", md: "-6%" },
+          width: { xs: 300, md: 420 },
+          height: { xs: 300, md: 420 },
           borderRadius: "50%",
           background: `radial-gradient(circle at 70% 70%, ${orbRight}, transparent 60%)`,
           filter: "blur(34px)",
@@ -110,6 +108,4 @@ const AnimatedBackground = ({ accentColor }) => {
       />
     </Box>
   );
-};
-
-export default AnimatedBackground;
+}
